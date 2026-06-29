@@ -11,7 +11,7 @@ from matplotlib.ticker import FormatStrFormatter
 # SETTINGS
 # =========================
 BASE_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = BASE_DIR / "data" / "raw"
+DATA_DIR = BASE_DIR / "data" / "Supplement_Original_Data"
 FIGURE_DIR = BASE_DIR / "figures"
 
 FIGURE_DIR.mkdir(exist_ok=True)
