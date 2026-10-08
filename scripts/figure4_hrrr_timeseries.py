@@ -23,9 +23,9 @@ OUTNAME = "Residual_TimeSeries_3Sites_VERTICAL_HRRR_CLEAN_CA_COMPRESSED_ONLY_SYM
 
 FIGSIZE = (11.5, 9.2)
 
-POINT_SIZE = 32
-ALPHA = 0.88
-EDGE_LW = 0.6
+POINT_SIZE = 18
+ALPHA = 0.65
+EDGE_LW = 0.35
 
 FONT_FAMILY = "DejaVu Sans"
 LABEL_SIZE = 12
@@ -145,19 +145,27 @@ def clean_normal_date_axis(ax, dt_min, dt_max):
 
 
 def clean_compressed_date_axis(ax, unique_dates):
+    import numpy as np
+
     n = len(unique_dates)
+
+    if n == 0:
+        return
+
     ax.set_xlim(-1, n)
 
-    max_ticks = 8
-    step = max(1, n // max_ticks)
+    # Six evenly spaced dates, including first and last
+    tick_count = min(6, n)
 
-    tick_positions = list(range(0, n, step))
+    tick_positions = np.unique(
+        np.linspace(0, n - 1, tick_count)
+        .round()
+        .astype(int)
+    ).tolist()
 
-    if tick_positions[-1] != n - 1:
-        tick_positions.append(n - 1)
-
+    # Full YYYY-MM-DD format for ALL dates
     tick_labels = [
-        pd.to_datetime(unique_dates[i]).strftime("%Y-%m-%d")
+        pd.to_datetime(unique_dates[i]).strftime("%Y-%m")
         for i in tick_positions
     ]
 
@@ -169,19 +177,6 @@ def clean_compressed_date_axis(ax, unique_dates):
         lbl.set_ha("right")
         lbl.set_fontweight("bold")
 
-
-if not DATA_DIR.exists():
-    raise FileNotFoundError(
-        f"Data folder not found:\n{DATA_DIR}\n\n"
-        "Expected folder: data/Supplement_Original_Data/"
-    )
-
-
-plt.rcParams.update({
-    "font.family": FONT_FAMILY,
-    "font.weight": "bold",
-    "axes.labelweight": "bold"
-})
 
 fig, axes = plt.subplots(3, 1, figsize=FIGSIZE, sharex=False)
 
