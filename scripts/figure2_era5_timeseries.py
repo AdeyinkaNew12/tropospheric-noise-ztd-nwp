@@ -43,9 +43,9 @@ plt.rcParams.update({
 })
 
 MARKERS = ["o", "s", "D", "^", "P", "X", "v", "<", ">", "*"]
-MSIZE = 28
-EDGE_LW = 0.6
-ALPHA = 0.85
+MSIZE = 18
+EDGE_LW = 0.35
+ALPHA = 0.65
 
 
 # =========================
@@ -119,7 +119,16 @@ def load_one_site(path: Path):
 
     df[id_col] = df[id_col].astype(str).str.strip().str.upper()
     df[resid_col] = pd.to_numeric(df[resid_col], errors="coerce")
-    df[date_col] = pd.to_datetime(df[date_col].astype(str).str.strip(), errors="coerce")
+    date_str = df[date_col].astype(str).str.strip()
+
+    if path.name == "ERA5_California.csv":
+        df[date_col] = pd.to_datetime(
+            date_str, format="%Y%m%d", errors="coerce"
+        )
+    else:
+        df[date_col] = pd.to_datetime(
+            date_str, errors="coerce"
+        )
 
     td = parse_time_to_timedelta(df[time_col])
     df["Datetime"] = df[date_col] + td
@@ -238,7 +247,15 @@ for i, fname in enumerate(FILES):
     ax.set_ylabel("Residual (ERA-5) (m)", fontweight="bold")
     ax.grid(True, linestyle="--", alpha=0.25)
 
-    if is_month_style(fname):
+    if fname == "ERA5_California.csv":
+        ax.xaxis.set_major_locator(mdates.YearLocator(base=1))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+        ax.set_xlim(
+            pd.Timestamp("2019-01-01"),
+            pd.Timestamp("2023-01-01")
+        )
+        ax.tick_params(axis="x", labelrotation=0)
+    elif is_month_style(fname):
         apply_month_style(ax)
     else:
         apply_year_style(ax)
@@ -299,6 +316,6 @@ for j in range(len(FILES), len(axes)):
 
 out_path = OUTPUT_DIR / OUTNAME
 fig.savefig(out_path, dpi=DPI, bbox_inches="tight")
-plt.show()
+plt.close('all')
 
 print(f"✅ Saved combined figure to:\n{out_path}")

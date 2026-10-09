@@ -646,39 +646,102 @@ cbar_b.set_label("Latitude (°)", fontweight="bold")
 
 
 # ============================================================
-# LEGEND
+# LEGENDS
 # ============================================================
-legend_handles = [
-    Line2D([0], [0], marker='D', linestyle='None', markerfacecolor='lightgray',
-           markeredgecolor='black', markersize=9, label='California'),
-    Line2D([0], [0], marker='s', linestyle='None', markerfacecolor='lightgray',
-           markeredgecolor='black', markersize=9, label='Missouri'),
-    Line2D([0], [0], marker='P', linestyle='None', markerfacecolor='lightgray',
-           markeredgecolor='black', markersize=9, label='Utah'),
-    Line2D([0], [0], marker='^', linestyle='None', markerfacecolor='lightgray',
-           markeredgecolor='black', markersize=9, label='Australia / unmatched ERA5'),
-    Line2D([0], [0], marker='v', linestyle='None', markerfacecolor='lightgray',
-           markeredgecolor='black', markersize=9, label='Chile'),
-    Line2D([0], [0], marker='o', linestyle='None', markerfacecolor='lightgray',
-           markeredgecolor='black', markersize=9, label='ERA5 filled symbols'),
-    Line2D([0], [0], marker='o', linestyle='None', markerfacecolor='none',
-           markeredgecolor='black', markeredgewidth=2.0, markersize=9, label='HRRR open symbols'),
-    Line2D([0], [0], color='black', linestyle='--', linewidth=2,
-           label='Latitude fit / ERA5 elevation fit'),
-    Line2D([0], [0], color='black', linestyle='-', linewidth=2,
-           label='HRRR elevation fit'),
+
+# Marker shape identifies geographic station group.
+site_labels = [
+    ("Alaska", "o"),
+    ("Australia", "^"),
+    ("California", "D"),
+    ("Chile", "v"),
+    ("Germany", "<"),
+    ("Guadeloupe", ">"),
+    ("Italy", "X"),
+    ("Japan-1", "h"),
+    ("Japan-2", "*"),
+    ("Missouri", "s"),
+    ("Utah", "P"),
 ]
 
-fig.legend(
-    handles=legend_handles,
-    loc='upper center',
-    bbox_to_anchor=(0.5, 0.985),
-    ncol=3,
-    frameon=True
+site_handles = [
+    Line2D(
+        [0], [0],
+        marker=marker,
+        linestyle="None",
+        markerfacecolor="lightgray",
+        markeredgecolor="black",
+        markeredgewidth=1.0,
+        markersize=8,
+        label=label
+    )
+    for label, marker in site_labels
+]
+
+# Fill style identifies NWP dataset; line style identifies fitted relationship.
+style_handles = [
+    Line2D(
+        [0], [0],
+        marker="o",
+        linestyle="None",
+        markerfacecolor="lightgray",
+        markeredgecolor="black",
+        markersize=8,
+        label="ERA5 (filled)"
+    ),
+    Line2D(
+        [0], [0],
+        marker="o",
+        linestyle="None",
+        markerfacecolor="none",
+        markeredgecolor="black",
+        markeredgewidth=1.8,
+        markersize=8,
+        label="HRRR (open)"
+    ),
+    Line2D(
+        [0], [0],
+        color="black",
+        linestyle="--",
+        linewidth=2,
+        label="Latitude fit / ERA5 elevation fit"
+    ),
+    Line2D(
+        [0], [0],
+        color="black",
+        linestyle="-",
+        linewidth=2,
+        label="HRRR elevation fit"
+    ),
+]
+
+# First legend: all station-group marker shapes.
+legend_sites = fig.legend(
+    handles=site_handles,
+    loc="upper center",
+    bbox_to_anchor=(0.5, 0.995),
+    ncol=6,
+    frameon=True,
+    fontsize=9,
+    title="Station group",
+    title_fontsize=9
 )
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+# Keep the first legend when adding the second.
+fig.add_artist(legend_sites)
+
+# Second legend: model fill convention and fitted lines.
+fig.legend(
+    handles=style_handles,
+    loc="upper center",
+    bbox_to_anchor=(0.5, 0.925),
+    ncol=4,
+    frameon=True,
+    fontsize=9
+)
+
+plt.tight_layout(rect=[0, 0, 1, 0.84])
 plt.savefig(OUT_PNG, dpi=DPI, bbox_inches="tight")
-plt.show()
+plt.close('all')
 
 print(f"\nSaved figure to:\n{OUT_PNG}")
