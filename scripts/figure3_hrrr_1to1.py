@@ -298,6 +298,6 @@ for i, path in enumerate(FILES):
 out_png = OUTPUT_DIR / OUTNAME
 
 plt.savefig(out_png, dpi=300, bbox_inches="tight")
-plt.show()
+plt.close('all')
 
 print(f"✅ Saved figure to:\n{out_png}")

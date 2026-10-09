@@ -263,6 +263,6 @@ for ax, (path, tag, axis_type) in zip(axes, PANELS):
 out_png = OUTPUT_DIR / OUTNAME
 
 plt.savefig(out_png, dpi=300, bbox_inches="tight")
-plt.show()
+plt.close('all')
 
 print(f"\n✅ Saved to:\n{out_png}")

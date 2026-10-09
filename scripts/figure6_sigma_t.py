@@ -578,6 +578,6 @@ fig.legend(
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig(OUT_PNG, dpi=300, bbox_inches="tight")
-plt.show()
+plt.close('all')
 
 print(f"\nSaved figure to:\n{OUT_PNG}")

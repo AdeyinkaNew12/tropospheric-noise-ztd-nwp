@@ -280,6 +280,6 @@ for j in range(len(FILES), len(axes)):
 
 out_png = FIGURE_DIR / OUTNAME
 plt.savefig(out_png, dpi=DPI, bbox_inches="tight")
-plt.show()
+plt.close('all')
 
 print(f"Saved combined figure to:\n{out_png}")
