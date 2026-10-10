@@ -237,7 +237,7 @@ for fname in ERA5_FILES:
     g["Dataset"] = "ERA5"
     g["Name"] = site_name
     g["Station"] = g[station_col].astype(str).str.strip()
-    g["MatchedGroup"] = g["Name"].map(era5_to_hrrr_group).fillna("None")
+    g["MatchedGroup"] = era5_to_hrrr_group.get(Path(fname).stem, "None")
     g["Has_HRRR_Match"] = g["MatchedGroup"] != "None"
 
     era5_station_rows.append(
