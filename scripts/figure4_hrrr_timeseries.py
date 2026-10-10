@@ -91,7 +91,7 @@ def load_residual_timeseries(path):
 
     res_col = pick_col(df, [
         "Residual(HRRR)", "Residual HRRR",
-        "Residual (GNSS)",
+        "Residual (GNSS)", "Residual(GNSS)",
         "GNSS-HRRR", "GPS-HRRR",
         "Residual", "Residual(m)", "Residual (m)"
     ])

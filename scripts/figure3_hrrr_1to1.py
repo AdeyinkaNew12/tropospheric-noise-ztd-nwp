@@ -85,7 +85,7 @@ def load_site_csv(path):
 
     c_col = pick_col(df, [
         "Residual(HRRR)", "Residual HRRR",
-        "Residual (GNSS)",
+        "Residual (GNSS)", "Residual(GNSS)",
         "GNSS-HRRR", "GPS-HRRR",
         "Residual", "Residual(m)", "Residual (m)"
     ])
