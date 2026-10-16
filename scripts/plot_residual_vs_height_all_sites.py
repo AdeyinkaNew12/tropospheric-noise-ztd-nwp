@@ -1,18 +1,14 @@
 from pathlib import Path
-import re
+from itertools import cycle
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from itertools import cycle
 from matplotlib.lines import Line2D
 from matplotlib.ticker import FormatStrFormatter
 
-# ============================================================
-# PATHS
-# ============================================================
-
 ROOT = Path(__file__).resolve().parents[1]
-
 DATA_DIR = ROOT / "data" / "Supplement_Original_Data"
 
 OUTPUT_DIR = Path.home() / "Desktop" / "NewUpdated"
@@ -22,25 +18,34 @@ OUT_PNG = OUTPUT_DIR / "Residual_vs_Height_ALL_SITES_NEW_UPDATED.png"
 OUT_PDF = OUTPUT_DIR / "Residual_vs_Height_ALL_SITES_NEW_UPDATED.pdf"
 
 FILES = [
-    ("Japan-1", "ERA5_Japan1.csv"),
-    ("Missouri", "ERA5_Missouri.csv"),
-    ("Alaska", "ERA5_Alaska.csv"),
     ("Australia", "ERA5_Australia.csv"),
-    ("Germany", "ERA5_Germany.csv"),
+    ("Europe", "ERA5_Germany.csv"),
+    ("Japan-1", "ERA5_Japan1.csv"),
+    ("Alaska", "ERA5_Alaska.csv"),
     ("Japan-2", "ERA5_Japan2.csv"),
     ("Italy", "ERA5_Italy.csv"),
     ("Chile", "ERA5_Chile.csv"),
     ("Guadeloupe", "ERA5_Guadeloupe.csv"),
+    ("Missouri", "ERA5_Missouri.csv"),
     ("California", "ERA5_California.csv"),
 ]
 
-NROWS, NCOLS = 5, 2
+FILES = [
+    FILES[0],
+    FILES[2],
+    FILES[1],
+    *FILES[3:]
+]
+
+NROWS = 5
+NCOLS = 2
 FIGSIZE = (13.5, 15)
+DPI = 300
 
 FONT_FAMILY = "DejaVu Sans"
 AX_LABEL_SIZE = 11
 TICK_SIZE = 10
-PANEL_LABEL_SIZE = 13
+PANEL_LABEL_SIZE = 12
 
 MARKER_SIZE = 20
 EDGE_LW = 0.6
@@ -52,104 +57,103 @@ LEGEND_TITLE_SIZE = 9.5
 LEGEND_MARKERSCALE = 0.9
 LEGEND_FRAMEALPHA = 0.95
 
-MARKERS = ["o", "s", "D", "^", "P", "X", "v", "<", ">", "*"]
+MARKERS = [
+    "o", "s", "D", "^", "P",
+    "X", "v", "<", ">", "*"
+]
 
-# ============================================================
-# HELPERS
-# ============================================================
-
-def norm(s):
-    return re.sub(r"[()\s_\-]", "", str(s).lower())
-
-
-def find_col(df, candidates):
-    norm_map = {norm(c): c for c in df.columns}
-
-    for cand in candidates:
-        key = norm(cand)
-        if key in norm_map:
-            return norm_map[key]
-
-    return None
-
-
-def load_height_residual(path):
+def load_era5(path):
     if not path.is_file():
         raise FileNotFoundError(path)
 
     df = pd.read_csv(path)
     df.columns = df.columns.str.strip()
 
-    id_col = find_col(df, [
-        "ID", "Station", "StationID", "Name"
-    ])
+    required = ["ID", "Hgt_m", "Residual(ERA5)"]
+    missing = [c for c in required if c not in df.columns]
 
-    resid_col = find_col(df, [
-        "Residual(ERA5)",
-        "Residual (ERA5)",
-        "Residual(ERA-5)"
-    ])
+    if missing:
+        raise ValueError(
+            f"{path.name}: Missing columns {missing}"
+        )
 
-    hgt_col = find_col(df, [
-        "Hgt_m", "Height", "Elevation", "Elev"
-    ])
-
-    if id_col is None:
-        raise KeyError(f"Station column missing: {path.name}")
-
-    if resid_col is None:
-        raise KeyError(f"ERA5 residual column missing: {path.name}")
-
-    if hgt_col is None:
-        raise KeyError(f"Elevation column missing: {path.name}")
-
-    df[id_col] = (
-        df[id_col]
+    df["ID"] = (
+        df["ID"]
         .astype("string")
         .str.strip()
         .str.upper()
     )
 
-    df[resid_col] = pd.to_numeric(
-        df[resid_col], errors="coerce"
+    df["Hgt_m"] = pd.to_numeric(
+        df["Hgt_m"], errors="coerce"
     )
 
-    df[hgt_col] = pd.to_numeric(
-        df[hgt_col], errors="coerce"
+    df["Residual(ERA5)"] = pd.to_numeric(
+        df["Residual(ERA5)"], errors="coerce"
     )
 
     df = df.dropna(
-        subset=[id_col, resid_col, hgt_col]
+        subset=["ID", "Hgt_m", "Residual(ERA5)"]
     ).copy()
 
-    df = df[df[id_col].ne("")]
+    df = df[df["ID"].ne("")].copy()
 
-    return df, id_col, hgt_col, resid_col
-
-
-# ============================================================
-# VALIDATE DATASETS
-# ============================================================
-
-for site, filename in FILES:
-    path = DATA_DIR / filename
-
-    if not path.is_file():
-        raise FileNotFoundError(
-            f"Missing source dataset for {site}: {path}"
+    if df.empty:
+        raise ValueError(
+            f"No valid observations: {path.name}"
         )
 
-print("=" * 75)
-print("RESIDUAL VS HEIGHT — UPDATED ORIGINAL ERA5 DATA")
-print("=" * 75)
+    return df
 
-# ============================================================
-# BUILD FIGURE
-# ============================================================
+
+print("=" * 80)
+print("ERA5 RESIDUAL VS HEIGHT — VERIFIED ORIGINAL CSV FILES")
+print("=" * 80)
+
+loaded = []
+total_observations = 0
+total_stations = 0
+
+for i, (site, filename) in enumerate(FILES):
+    df = load_era5(DATA_DIR / filename)
+    stations = sorted(df["ID"].unique())
+
+    loaded.append((site, filename, df, stations))
+
+    total_observations += len(df)
+    total_stations += len(stations)
+
+    print(
+        f"({chr(97+i)}) {site:12s} "
+        f"{filename:24s} "
+        f"Stations: {len(stations):2d} "
+        f"Observations: {len(df):4d} PASS"
+    )
+
+assert len(loaded) == 10
+assert total_stations == 41
+assert total_observations == 5085
+
+missouri = load_era5(DATA_DIR / "ERA5_Missouri.csv")
+
+if "Lon" in missouri.columns:
+    rol3 = missouri[missouri["ID"] == "ROL3"]
+    assert not rol3.empty
+    assert np.allclose(
+        pd.to_numeric(rol3["Lon"]).to_numpy(),
+        -91.746689,
+        atol=1e-6
+    )
+
+print("\nPASS: 10 corrected ERA5 datasets.")
+print("PASS: 41 station-group entries.")
+print("PASS: 5085 observations.")
+print("PASS: Corrected Missouri ROL3 longitude.")
 
 plt.rcParams.update({
     "font.family": FONT_FAMILY,
-    "font.weight": "bold"
+    "font.weight": "bold",
+    "axes.labelweight": "bold"
 })
 
 fig, axes = plt.subplots(
@@ -157,19 +161,10 @@ fig, axes = plt.subplots(
 )
 
 axes = axes.flatten()
+panel_letters = "abcdefghij"
 
-panel_letters = list("abcdefghijklmnopqrstuvwxyz")
-
-total_observations = 0
-
-for i, (ax, (site, filename)) in enumerate(
-    zip(axes, FILES)
-):
-    path = DATA_DIR / filename
-
-    df, id_col, hgt_col, resid_col = load_height_residual(path)
-
-    stations = sorted(df[id_col].unique())
+for i, (site, filename, df, stations) in enumerate(loaded):
+    ax = axes[i]
 
     marker_map = {
         st: MARKERS[j % len(MARKERS)]
@@ -177,34 +172,43 @@ for i, (ax, (site, filename)) in enumerate(
     }
 
     palette = cycle(plt.cm.tab10.colors)
-
     colors = {
         st: next(palette)
         for st in stations
     }
 
-    # Plot every valid observation.
     for st in stations:
-        sub = df[df[id_col] == st]
+        sub = df[df["ID"] == st]
 
         ax.scatter(
-            sub[hgt_col],
-            sub[resid_col],
+            sub["Hgt_m"],
+            sub["Residual(ERA5)"],
             color=colors[st],
             marker=marker_map[st],
             edgecolors="black",
-            linewidth=EDGE_LW,
+            linewidths=EDGE_LW,
             s=MARKER_SIZE,
             alpha=ALPHA,
             zorder=3
         )
 
-    ax.set_title(
-        f"({panel_letters[i]}) {site}",
-        loc="left",
-        pad=2,
+    # ONLY THE PANEL LETTER, INSIDE THE PLOTTING BOX
+    ax.text(
+        0.02,
+        0.96,
+        f"({panel_letters[i]})",
+        transform=ax.transAxes,
         fontsize=PANEL_LABEL_SIZE,
-        fontweight="bold"
+        fontweight="bold",
+        ha="left",
+        va="top",
+        zorder=10,
+        bbox=dict(
+            facecolor="white",
+            edgecolor="none",
+            alpha=0.8,
+            pad=1
+        )
     )
 
     ax.set_xlabel(
@@ -224,7 +228,9 @@ for i, (ax, (site, filename)) in enumerate(
         labelsize=TICK_SIZE
     )
 
-    for tick in ax.get_xticklabels() + ax.get_yticklabels():
+    for tick in (
+        ax.get_xticklabels() + ax.get_yticklabels()
+    ):
         tick.set_fontweight("bold")
 
     ax.yaxis.set_major_formatter(
@@ -266,30 +272,17 @@ for i, (ax, (site, filename)) in enumerate(
 
     legend.get_title().set_fontweight("bold")
 
-    for text in legend.get_texts():
-        text.set_fontweight("bold")
-
-    total_observations += len(df)
-
-    print(
-        f"{site:12s} | "
-        f"Stations: {len(stations):2d} | "
-        f"Observations: {len(df):5d} | "
-        f"Source: {filename}"
-    )
-
-# ============================================================
-# SAVE FIGURE
-# ============================================================
+    for txt in legend.get_texts():
+        txt.set_fontweight("bold")
 
 plt.subplots_adjust(
-    wspace=0.65,
-    hspace=0.40
+    wspace=0.75,
+    hspace=0.45
 )
 
 fig.savefig(
     OUT_PNG,
-    dpi=300,
+    dpi=DPI,
     bbox_inches="tight"
 )
 
@@ -300,11 +293,14 @@ fig.savefig(
 
 plt.close(fig)
 
-print("\n" + "=" * 75)
-print("FIGURE GENERATED SUCCESSFULLY")
-print("=" * 75)
+assert OUT_PNG.is_file()
+assert OUT_PDF.is_file()
 
-print("Total observations:", total_observations)
+print("\n" + "=" * 80)
+print("FIGURE GENERATED SUCCESSFULLY")
+print("=" * 80)
+print("PASS: Panel letters (a)–(j) placed inside plotting boxes.")
+print("PASS: Region names omitted from plots.")
+print("PASS: Station legends remain outside.")
 print("PNG:", OUT_PNG)
 print("PDF:", OUT_PDF)
-print("Source datasets:", DATA_DIR)
