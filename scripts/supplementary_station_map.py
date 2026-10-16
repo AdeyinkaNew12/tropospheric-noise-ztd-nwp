@@ -82,67 +82,117 @@ DPI = 300
 # ==================================================
 
 def load_stations(path):
+    data_dir = Path(__file__).resolve().parents[1] / "data" / "Supplement_Original_Data"
 
-    df = pd.read_csv(path)
-
-    required = {
-        "Station",
-        "Latitude",
-        "Longitude",
-        "Site",
+    mapping = {
+        "Alaska": "Alaska",
+        "Australia": "Australia",
+        "California": "California",
+        "Chile": "Chile",
+        "Germany": "Europe",
+        "Guadeloupe": "Guadeloupe",
+        "Italy": "Italy",
+        "Japan1": "Japan",
+        "Japan2": "Japan2",
+        "Missouri": "Missouri",
+        "Utah": "Utah",
     }
 
-    missing = required - set(df.columns)
+    records = []
 
-    if missing:
-        raise ValueError(
-            f"Missing CSV columns: {missing}"
-        )
+    for region, site in mapping.items():
+        available = [
+            data_dir / f"ERA5_{region}.csv",
+            data_dir / f"HRRR_{region}.csv",
+        ]
 
-    df["Site"] = (
-        df["Site"].astype(str).str.strip()
-    )
+        selected = [p for p in available if p.is_file()]
 
-    df["Station"] = (
-        df["Station"].astype(str).str.strip()
-    )
+        if not selected:
+            raise FileNotFoundError(f"No original CSV for {region}")
 
-    # Remove original California rows.
-    # This also removes P667.
-    df = df[
-        df["Site"] != "California"
-    ].copy()
+        for csv_path in selected:
+            df = pd.read_csv(csv_path)
+            df.columns = df.columns.str.strip()
 
-    corrected = pd.DataFrame(
-        CALIFORNIA,
-        columns=[
-            "Station",
-            "Latitude",
-            "Longitude",
-        ],
-    )
+            required = {"ID", "Lat", "Lon", "Hgt_m"}
+            missing = required - set(df.columns)
 
-    corrected["Site"] = "California"
+            if missing:
+                raise ValueError(f"{csv_path.name}: Missing {missing}")
 
-    df = pd.concat(
-        [df, corrected],
-        ignore_index=True,
-    )
+            df = df.rename(columns={
+                "ID": "Station",
+                "Lat": "Latitude",
+                "Lon": "Longitude",
+                "Hgt_m": "Elevation_m",
+            })
 
-    df[["Latitude", "Longitude"]] = (
-        df[["Latitude", "Longitude"]]
-        .apply(pd.to_numeric, errors="coerce")
-    )
+            df["Station"] = df["Station"].astype("string").str.strip().str.upper()
 
-    df = df.dropna(
-        subset=["Latitude", "Longitude"]
-    )
+            for col in ["Latitude", "Longitude", "Elevation_m"]:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    df = df.drop_duplicates(
+            df = df.dropna(
+                subset=["Station", "Latitude", "Longitude", "Elevation_m"]
+            )
+            df = df[df["Station"].ne("")]
+
+            for station, group in df.groupby("Station"):
+                coords = group[
+                    ["Latitude", "Longitude", "Elevation_m"]
+                ]
+
+                if (
+                    (coords.max() - coords.min()).abs()
+                    > 0.000001
+                ).any():
+                    raise ValueError(
+                        f"{csv_path.name}: Inconsistent coordinates "
+                        f"or elevations for {station}"
+                    )
+
+                row = coords.iloc[0]
+
+                records.append({
+                    "Station": station,
+                    "Latitude": float(row["Latitude"]),
+                    "Longitude": float(row["Longitude"]),
+                    "Elevation_m": float(row["Elevation_m"]),
+                    "Site": site,
+                    "Source": csv_path.name,
+                })
+
+    result = pd.DataFrame(records)
+
+    for (site, station), group in result.groupby(["Site", "Station"]):
+        coords = group[["Latitude", "Longitude", "Elevation_m"]]
+
+        if ((coords.max() - coords.min()).abs() > 0.000001).any():
+            raise ValueError(
+                f"ERA5/HRRR mismatch for {site} station {station}"
+            )
+
+    result = result.drop_duplicates(
         subset=["Site", "Station"]
-    )
+    ).reset_index(drop=True)
 
-    return df
+    rol3 = result[
+        (result["Site"] == "Missouri")
+        & (result["Station"] == "ROL3")
+    ]
+
+    assert len(rol3) == 1
+    assert abs(rol3.iloc[0]["Latitude"] - 37.925919) < 1e-6
+    assert abs(rol3.iloc[0]["Longitude"] - (-91.746689)) < 1e-6
+    assert abs(rol3.iloc[0]["Elevation_m"] - 301.01) < 1e-6
+
+    print("PASS: Corrected original ERA5/HRRR station data.")
+    print("PASS: Station coordinates and elevations verified.")
+    print("PASS: Missouri ROL3 elevation = 301.01 m.")
+    print(f"PASS: {len(result)} unique regional station entries.")
+
+    return result
 
 
 # ==================================================
@@ -638,12 +688,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=(
-            Path.home()
-            / "Desktop"
-            / "GNSS_Final_Results_20261009_202753"
-            / "Supplementary_Map_TOPOGRAPHIC_FINAL_REVIEW.png"
-        ),
+        default=(Path.home() / "Desktop" / "NewUpdated" / "Supplementary_Map_TOPOGRAPHIC_NEW_UPDATED.png"),
     )
 
     args = parser.parse_args()
