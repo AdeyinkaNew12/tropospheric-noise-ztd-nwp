@@ -2,139 +2,100 @@
 
 ## Overview
 
-This repository contains all scripts, input datasets, and outputs required to reproduce the analyses and figures presented in:
+This repository contains the Python scripts and processed input datasets needed to reproduce the manuscript analyses of GNSS Zenith Total Delay (ZTD) residual variability using ERA5 and HRRR numerical weather prediction products.
 
-**Olaseinde, A., & Maurer, J.**
-*Analysis of Tropospheric Noise at Small Spatial Scales Based on GNSS Zenith Total Delay and Numerical Weather Prediction Models.*
+Authors: Adeyinka Olaseinde and James Maurer.
 
-The study evaluates tropospheric residual variability at small spatial scales by comparing Global Navigation Satellite System (GNSS) Zenith Total Delay (ZTD) observations against two Numerical Weather Prediction (NWP) products:
+The complete workflow generates 26 manuscript outputs: seven main figures, one supplementary figure, nine supplementary table files, and nine analysis CSV files.
 
-* ERA5 reanalysis
-* High-Resolution Rapid Refresh (HRRR)
+## Repository Contents
 
-The repository reproduces all figures and statistical analyses used in the manuscript.
+- scripts/ — Python scripts for manuscript figures, statistics, tables, and workflow execution.
+- data/Supplement_Original_Data/ — Processed ERA5 and HRRR datasets and verified GNSS station metadata.
+- requirements.txt — Python dependencies.
+- README.md — Reproduction instructions.
+- .gitignore — Excludes generated results and temporary files.
 
----
-
-## Repository Structure
-
-```text
-tropospheric-noise-ztd-nwp/
-│
-├── data/
-│   └── Supplement_Original_Data/
-│       ├── ERA5_*.csv
-│       └── HRRR_*.csv
-│
-├── outputs/
-│   ├── Figure outputs
-│   ├── Summary tables
-│   └── Intermediate analysis files
-│
-├── scripts/
-│   ├── figure1_era5_1to1.py
-│   ├── figure2_era5_timeseries.py
-│   ├── figure3_hrrr_1to1.py
-│   ├── figure4_hrrr_timeseries.py
-│   ├── figure5_sigma_sp.py
-│   ├── figure6_sigma_t.py
-│   └── run_all.py
-│
-├── requirements.txt
-├── README.md
-└── LICENSE
-```
-
----
+Generated manuscript outputs are intentionally excluded from GitHub.
 
 ## Requirements
 
-The repository was developed and tested using:
+Python 3.11 or newer is recommended.
 
-* Python 3.11+
-* NumPy
-* Pandas
-* Matplotlib
-* SciPy
-* Scikit-learn
+Install the dependencies:
 
-Install all dependencies using:
+    python3 -m pip install -r requirements.txt
 
-```bash
-pip install -r requirements.txt
-```
+Dependencies include NumPy, Pandas, Matplotlib, SciPy, Scikit-learn, Cartopy, PyProj, python-docx, and openpyxl.
 
----
+## Reproduce the Manuscript
 
-## Reproducing All Figures
+Clone the repository:
 
-To reproduce the complete analysis workflow:
+    git clone https://github.com/AdeyinkaNew12/tropospheric-noise-ztd-nwp.git
+    cd tropospheric-noise-ztd-nwp
 
-```bash
-python scripts/run_all.py
-```
+Install the dependencies:
 
-All generated figures and summary tables will be written automatically to the `outputs/` directory.
+    python3 -m pip install -r requirements.txt
 
----
+Run the complete workflow:
 
-## Figures
+    python3 scripts/run_all.py
 
-### Figure 1
+## Generated Outputs
 
-**ERA5 GNSS–ERA5 ZTD comparison (1:1 analysis)**
+After execution, manuscript results are organized into:
 
-### Figure 2
+- manuscript_outputs/Main_Figures/ — 7 files
+- manuscript_outputs/Supplementary_Figures/ — 1 file
+- manuscript_outputs/Supplementary_Tables/ — 9 files
+- manuscript_outputs/Analysis_CSVs/ — 9 files
+- manuscript_outputs/OUTPUT_VERIFICATION_REPORT.csv — verification report
 
-**ERA5 residual time-series analysis**
+The verification report is additional to the 26 manuscript output files.
 
-### Figure 3
+## Main Figures
 
-**HRRR GNSS–HRRR ZTD comparison (1:1 analysis)**
+1. Figure 1 — Global GNSS station location map.
+2. Figure 2 — ERA5 GNSS–NWP ZTD comparison.
+3. Figure 3 — ERA5 residual time series.
+4. Figure 4 — HRRR GNSS–NWP ZTD comparison.
+5. Figure 5 — HRRR residual time series.
+6. Figure 6 — Spatial residual variability.
+7. Figure 7 — Temporal residual variability.
 
-### Figure 4
+## Supplementary Figure
 
-**HRRR residual time-series analysis**
+Figure S8 — Topographic maps of the GNSS station study regions.
 
-### Figure 5
+## Supplementary Tables and Analysis CSVs
 
-**Spatial variability analysis (σᵖ or σsp)**
+The workflow generates supporting station metadata, station-spacing statistics, observation summaries, station-level metrics, and model-comparison results.
 
-### Figure 6
+## Input Data
 
-**Temporal variability analysis (σᵗ or σt)**
+Processed ERA5 and HRRR residual datasets and GNSS station metadata are included under data/Supplement_Original_Data/.
 
----
+The workflow uses repository-relative paths and does not require files from the original authors Desktop.
 
-## Data Sources
+## Reproducibility Notes
 
-The repository includes processed datasets required to reproduce the analyses:
-
-* ERA5 residual datasets
-* HRRR residual datasets
-* GNSS station observations
-
----
+- Generated figures, tables, and analysis outputs remain on the computer running the workflow and are excluded from GitHub.
+- The supplementary topographic map may require internet access to retrieve terrain imagery.
+- The workflow passed a clean Git-snapshot execution test using an existing Python environment.
+- Installation of all dependencies on a fresh computer has not yet been independently verified.
 
 ## Citation
 
-If you use this repository or associated methods, please cite:
-
-Olaseinde, A., & Maurer, J.
-*Analysis of Tropospheric Noise at Small Spatial Scales Based on GNSS Zenith Total Delay and Numerical Weather Prediction Models.*
-
----
+Olaseinde, A., & Maurer, J. Analysis of Tropospheric Noise at Small Spatial Scales Based on GNSS Zenith Total Delay and Numerical Weather Prediction Models.
 
 ## Author
 
-**Adeyinka Olaseinde**
-Ph.D. Student
+Adeyinka Olaseinde
 Department of Geological Sciences
 The University of Alabama
 
----
-
 ## License
 
-This repository is distributed under the MIT License.
-
+See the LICENSE file for applicable licensing terms.
