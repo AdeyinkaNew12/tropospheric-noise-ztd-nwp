@@ -677,18 +677,14 @@ def main():
         "--stations",
         type=Path,
         default=(
-            Path.home()
-            / "Desktop"
-            / "All data For Master Thesis "
-            / "All_data_For_Master_Thesis"
-            / "StationMapfile.csv"
+            Path(__file__).resolve().parents[1] / "data/Supplement_Original_Data/StationMapfile_VERIFIED.csv"
         ),
     )
 
     parser.add_argument(
         "--output",
         type=Path,
-        default=(Path.home() / "Desktop" / "NewUpdated" / "Supplementary_Map_TOPOGRAPHIC_NEW_UPDATED.png"),
+        default=(Path(__file__).resolve().parents[1] / "figures/FigureS8_Supplementary_Topographic_Map.png"),
     )
 
     args = parser.parse_args()

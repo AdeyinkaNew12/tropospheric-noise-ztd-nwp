@@ -13,11 +13,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "Supplement_Original_Data"
 
-OUT = (
-    Path.home()
-    / "Desktop/GNSS_Final_Results_20261009_202753"
-    / "MAE_BIAS_SIGMA_OUTPUTS"
-)
+OUT = ROOT / 'manuscript_outputs' / 'Supplementary_Tables'
 OUT.mkdir(parents=True, exist_ok=True)
 
 GROUPS = {

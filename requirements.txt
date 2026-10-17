@@ -1,9 +1,9 @@
-
 numpy
 pandas
 matplotlib
 scipy
 scikit-learn
-
-scipy
-scikit-learn
+cartopy
+pyproj
+python-docx
+openpyxl

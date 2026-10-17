@@ -1,2 +1,13 @@
-
 outputs/
+\n/manuscript_outputs/\n/figures/\n/outputs/\n__pycache__/\n*.pyc\n.DS_Store\nscripts/*backup*.py\nscripts/*before*.py\n
+/manuscript_outputs/
+/figures/
+/outputs/
+.DS_Store
+__pycache__/
+*.pyc
+*.bak
+*.py.bak
+*.before_*
+scripts/*backup*.py
+scripts/*before*.py
