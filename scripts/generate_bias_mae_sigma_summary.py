@@ -46,7 +46,7 @@ def calculate_stations(dataset, regions):
             residual_col = find_col(
                 df, [
                     "Residual (GNSS)", "Residual(GNSS)",
-                    "Residual(HRRR)"
+                    "Residual(HRRR)", "Residual"
                 ]
             )
 

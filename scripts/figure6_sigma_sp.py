@@ -125,17 +125,53 @@ def gaussian_mu0(x, a, sigma):
 
 
 def try_parse_datetime(date_series, time_series=None):
+    """Parse YYYYMMDD and DD/MM/YY dates with optional times."""
+
+    dates = date_series.astype(str).str.strip()
+
     if time_series is not None:
-        combo = date_series.astype(str).str.strip() + " " + time_series.astype(str).str.strip()
+        times = time_series.astype(str).str.strip()
+        combo = dates + " " + times
+        formats = [
+            "%Y%m%d %H:%M:%S",
+            "%d/%m/%y %H:%M:%S",
+        ]
     else:
-        combo = date_series.astype(str).str.strip()
+        combo = dates
+        formats = [
+            "%Y%m%d",
+            "%d/%m/%y",
+            "%Y-%m-%d",
+            "%Y-%m-%d %H:%M:%S",
+        ]
 
-    dt = pd.to_datetime(combo, errors="coerce")
+    result = pd.Series(
+        pd.NaT,
+        index=date_series.index,
+        dtype="datetime64[ns]"
+    )
 
-    if dt.isna().all():
-        dt = pd.to_datetime(combo, errors="coerce", format="mixed")
+    for fmt in formats:
+        missing = result.isna()
+        if not missing.any():
+            break
 
-    return dt
+        parsed = pd.to_datetime(
+            combo.loc[missing],
+            format=fmt,
+            errors="coerce"
+        )
+
+        result.loc[missing] = parsed
+
+    if result.isna().any():
+        examples = combo.loc[result.isna()].head(5).tolist()
+        raise ValueError(
+            f"Unparsed timestamps: {result.isna().sum()}; "
+            f"examples: {examples}"
+        )
+
+    return result
 
 
 def combine_datetime_columns(df, date_col, time_col):
@@ -512,10 +548,16 @@ print("SITE/GROUP SUMMARY FOR sigma^sp")
 print("=" * 100)
 print(summary.sort_values(["Dataset", "SiteName"]).to_string(index=False))
 
+# ============================================================
+# SPATIAL VARIABILITY RESULTS
+# Latitude and elevation panels removed.
+# ============================================================
 
-# ============================================================
-# PLOT DATA
-# ============================================================
+print("\nFigure 6 sigma_sp latitude and elevation panels removed.")
+print("Spatial variability results saved to:")
+print(OUT_CSV_ALL_TIMES)
+print(OUT_CSV_SUMMARY)
+
 plot_df = summary.copy()
 
 if plot_df.empty:
@@ -566,7 +608,7 @@ a_fit, sigma_fit = fit_gaussian_mu0(x_lat, y_sig)
 if a_fit is not None:
     xs = np.linspace(np.nanmin(x_lat) - 5, np.nanmax(x_lat) + 5, 1000)
     ys = gaussian_mu0(xs, a_fit, sigma_fit)
-    ax.plot(xs, ys, "--", color="black", linewidth=2.0, zorder=2)
+# FIT LINE REMOVED: ax.plot(xs, ys, "--", color="black", linewidth=2.0, zorder=2)
 
 ax.set_xlabel("Latitude (°)", fontweight="bold")
 ax.set_ylabel(r"$\sigma^{sp}$ (m)", fontweight="bold")
@@ -622,7 +664,7 @@ if len(era5_plot) >= 2:
     mdl = LinearRegression().fit(X, y)
     xs = np.linspace(X.min(), X.max(), 300).reshape(-1, 1)
 
-    ax.plot(xs, mdl.predict(xs), "--", color="black", linewidth=2.0, zorder=2)
+# FIT LINE REMOVED: ax.plot(xs, mdl.predict(xs), "--", color="black", linewidth=2.0, zorder=2)
 
 if len(hrrr_plot) >= 2:
     X = hrrr_plot[["Elevation"]].to_numpy(float)
@@ -631,7 +673,7 @@ if len(hrrr_plot) >= 2:
     mdl = LinearRegression().fit(X, y)
     xs = np.linspace(X.min(), X.max(), 300).reshape(-1, 1)
 
-    ax.plot(xs, mdl.predict(xs), "-", color="black", linewidth=2.0, zorder=2)
+# FIT LINE REMOVED: ax.plot(xs, mdl.predict(xs), "-", color="black", linewidth=2.0, zorder=2)
 
 ax.set_xlabel("Elevation (m)", fontweight="bold")
 ax.set_ylabel(r"$\sigma^{sp}$ (m)", fontweight="bold")
@@ -649,95 +691,39 @@ cbar_b.set_label("Latitude (°)", fontweight="bold")
 # LEGENDS
 # ============================================================
 
-# Marker shape identifies geographic station group.
-site_labels = [
-    ("Alaska", "o"),
-    ("Australia", "^"),
-    ("California", "D"),
-    ("Chile", "v"),
-    ("Germany", "<"),
-    ("Guadeloupe", ">"),
-    ("Italy", "X"),
-    ("Japan-1", "h"),
-    ("Japan-2", "*"),
-    ("Missouri", "s"),
-    ("Utah", "P"),
-]
+
+# Marker shape identifies station group.
+site_labels = [('Alaska', 'o'), ('Australia', '^'), ('California', 'D'), ('Chile', 'v'), ('Germany', '<'), ('Guadeloupe', '>'), ('Italy', 'X'), ('Japan-1', 'h'), ('Japan-2', '*'), ('Missouri', 's'), ('Utah', 'P')]
 
 site_handles = [
-    Line2D(
-        [0], [0],
-        marker=marker,
-        linestyle="None",
-        markerfacecolor="lightgray",
-        markeredgecolor="black",
-        markeredgewidth=1.0,
-        markersize=8,
-        label=label
-    )
+    Line2D([0], [0], marker=marker, linestyle="None",
+           markerfacecolor="lightgray", markeredgecolor="black",
+           markersize=8, label=label)
     for label, marker in site_labels
 ]
 
-# Fill style identifies NWP dataset; line style identifies fitted relationship.
+# Separate dataset convention from geographic marker shapes.
 style_handles = [
-    Line2D(
-        [0], [0],
-        marker="o",
-        linestyle="None",
-        markerfacecolor="lightgray",
-        markeredgecolor="black",
-        markersize=8,
-        label="ERA5 (filled)"
-    ),
-    Line2D(
-        [0], [0],
-        marker="o",
-        linestyle="None",
-        markerfacecolor="none",
-        markeredgecolor="black",
-        markeredgewidth=1.8,
-        markersize=8,
-        label="HRRR (open)"
-    ),
-    Line2D(
-        [0], [0],
-        color="black",
-        linestyle="--",
-        linewidth=2,
-        label="Latitude fit / ERA5 elevation fit"
-    ),
-    Line2D(
-        [0], [0],
-        color="black",
-        linestyle="-",
-        linewidth=2,
-        label="HRRR elevation fit"
-    ),
+    Line2D([0], [0], marker="s", linestyle="None",
+           markerfacecolor="black", markeredgecolor="black",
+           markersize=8, label="ERA5 (filled symbols)"),
+    Line2D([0], [0], marker="s", linestyle="None",
+           markerfacecolor="none", markeredgecolor="black",
+           markeredgewidth=1.8, markersize=8,
+           label="HRRR (open symbols)"),
 ]
 
-# First legend: all station-group marker shapes.
 legend_sites = fig.legend(
-    handles=site_handles,
-    loc="upper center",
-    bbox_to_anchor=(0.5, 0.995),
-    ncol=6,
-    frameon=True,
-    fontsize=9,
-    title="Station group",
-    title_fontsize=9
+    handles=site_handles, loc="upper center",
+    bbox_to_anchor=(0.5, 0.995), ncol=6,
+    frameon=True, fontsize=9, title="Station group"
 )
-
-# Keep the first legend when adding the second.
 fig.add_artist(legend_sites)
 
-# Second legend: model fill convention and fitted lines.
 fig.legend(
-    handles=style_handles,
-    loc="upper center",
-    bbox_to_anchor=(0.5, 0.925),
-    ncol=4,
-    frameon=True,
-    fontsize=9
+    handles=style_handles, loc="upper center",
+    bbox_to_anchor=(0.5, 0.925), ncol=2,
+    frameon=True, fontsize=9
 )
 
 plt.tight_layout(rect=[0, 0, 1, 0.84])

@@ -3,7 +3,7 @@ import csv
 import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
-FINAL = ROOT / "manuscript_outputs"
+DESKTOP = Path.home() / "Desktop" / "GNSS Final Results"
 
 SOURCES = {
     "Main_Figures": {
@@ -26,15 +26,15 @@ SOURCES = {
     },
     "Supplementary_Tables": {
         "manuscript_outputs/Supplementary_Tables": [
-            "Table_S1_GNSS_Stations_FINAL.csv",
-            "Table_S1_GNSS_Stations_FINAL.xlsx",
-            "Table_S1_Data_Checks.csv",
-            "Table_S6_UPDATED_station_spacing.docx",
-            "Table_S6_UPDATED_station_spacing.csv",
-            "Table_S6_station_pair_distances.csv",
-            "Table_S7_UPDATED_FINAL.docx",
-            "Table_S7_UPDATED_station_summary.csv",
-            "Table_S7_UPDATED_Missouri_observations.csv",
+            "Table_S1a.docx",
+            "Table_S1b.docx",
+            "Table_S2.docx",
+            "Table_S3.docx",
+            "Table_S4.docx",
+            "Table_S5.docx",
+            "Table_S6.docx",
+            "Table_S7.docx",
+            "All_Supplementary_Tables.docx",
         ],
     },
     "Analysis_CSVs": {
@@ -54,58 +54,71 @@ SOURCES = {
     },
 }
 
-report = []
-missing = []
+def main():
+    report = []
+    missing = []
+    planned = []
 
-for category, source_groups in SOURCES.items():
-    destination_dir = FINAL / category
-    destination_dir.mkdir(parents=True, exist_ok=True)
+    for category, groups in SOURCES.items():
+        for source_folder, filenames in groups.items():
+            for filename in filenames:
+                source = ROOT / source_folder / filename
+                destination = DESKTOP / category / filename
 
-    for source_folder, filenames in source_groups.items():
-        for filename in filenames:
-            source = ROOT / source_folder / filename
-            destination = destination_dir / filename
+                if source.is_file():
+                    planned.append((source, destination))
+                    status = "PASS"
+                else:
+                    missing.append(str(source))
+                    status = "MISSING"
 
-            if source.is_file():
-                if source.resolve() != destination.resolve():
-                    shutil.copy2(source, destination)
-                status = "PASS"
-            else:
-                status = "MISSING"
-                missing.append(str(source))
+                report.append({
+                    "Category": category,
+                    "Filename": filename,
+                    "Status": status,
+                    "Source": str(source),
+                })
 
-            report.append({
-                "Category": category,
-                "Filename": filename,
-                "Status": status,
-                "Source": str(source),
-            })
+    if missing:
+        print("\nOUTPUT VERIFICATION FAILED")
+        for item in missing:
+            print("MISSING:", item)
+        raise SystemExit(
+            "Missing outputs. Desktop copy was not started."
+        )
 
-report_path = FINAL / "OUTPUT_VERIFICATION_REPORT.csv"
+    for source, destination in planned:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
 
-with report_path.open("w", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(
-        f,
-        fieldnames=["Category", "Filename", "Status", "Source"]
-    )
-    writer.writeheader()
-    writer.writerows(report)
+    report_path = DESKTOP / "OUTPUT_VERIFICATION_REPORT.csv"
 
-print("\n" + "=" * 65)
-print("LOCAL MANUSCRIPT OUTPUT VERIFICATION")
-print("=" * 65)
-print("Output folder:", FINAL)
-print("Expected files:", len(report))
-print("Files found:", len(report) - len(missing))
-print("Missing files:", len(missing))
+    with report_path.open(
+        "w", newline="", encoding="utf-8"
+    ) as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=[
+                "Category", "Filename", "Status", "Source"
+            ]
+        )
+        writer.writeheader()
+        writer.writerows(report)
 
-for category in SOURCES:
-    print(category + ":", len(list((FINAL / category).iterdir())))
+    print("\n" + "=" * 65)
+    print("FINAL MANUSCRIPT OUTPUT VERIFICATION")
+    print("=" * 65)
+    print("Destination:", DESKTOP)
+    print("Expected files:", len(report))
+    print("Files verified:", len(planned))
+    print("Missing files:", len(missing))
 
-if missing:
-    for filename in missing:
-        print("MISSING:", filename)
-    raise SystemExit("Output verification FAILED")
+    for category in SOURCES:
+        folder = DESKTOP / category
+        print(category + ":", len(list(folder.iterdir())))
 
-print("PASS: ALL 26 FILES VERIFIED")
-print("No Desktop files required by organizer.")
+    print("\nPASS: All expected files copied successfully.")
+    print("Report:", report_path)
+
+if __name__ == "__main__":
+    main()

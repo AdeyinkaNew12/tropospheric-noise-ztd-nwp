@@ -371,10 +371,16 @@ print("ALL STATIONS USED IN FIGURE 6")
 print("=" * 100)
 print(combined_station_out.to_string(index=False))
 
+# ============================================================
+# STATION-LEVEL SIGMA_T RESULTS
+# Latitude and elevation panels removed.
+# ============================================================
 
-# ============================================================
-# PANEL A
-# ============================================================
+print("\nFigure 6 latitude and elevation panels removed.")
+print("Station-level sigma_t results saved to:")
+print(ALL_OUT)
+print(STATIONS_USED_OUT)
+
 def plot_panel_a(ax):
     elev_all = combined_station_out["Elevation"].to_numpy(float)
     norm = Normalize(vmin=np.nanmin(elev_all), vmax=np.nanmax(elev_all))
@@ -414,7 +420,7 @@ def plot_panel_a(ax):
             xs = np.linspace(np.nanmin(x_comb) - 5, np.nanmax(x_comb) + 5, 1000)
             ys = gaussian_mu0(xs, *popt)
 
-            ax.plot(xs, ys, linestyle="--", color="black", linewidth=2.0, zorder=2)
+# FIT LINE REMOVED: ax.plot(xs, ys, linestyle="--", color="black", linewidth=2.0, zorder=2)
 
             print("\nPanel A station-level latitude Gaussian fit:")
             print(f"a = {popt[0]:.6f}")
@@ -461,7 +467,7 @@ def plot_panel_b(ax):
         mdl = LinearRegression().fit(X, y)
         xs = np.linspace(X.min(), X.max(), 1000).reshape(-1, 1)
 
-        ax.plot(xs, mdl.predict(xs), "--", color="black", linewidth=2.0, zorder=2)
+# FIT LINE REMOVED: ax.plot(xs, mdl.predict(xs), "--", color="black", linewidth=2.0, zorder=2)
 
         print("\nPanel B station-level ERA5 elevation fit:")
         print(f"slope = {mdl.coef_[0]:.8f}")
@@ -479,7 +485,7 @@ def plot_panel_b(ax):
         mdl = LinearRegression().fit(X, y)
         xs = np.linspace(X.min(), X.max(), 1000).reshape(-1, 1)
 
-        ax.plot(xs, mdl.predict(xs), "-", color="black", linewidth=2.0, zorder=2)
+# FIT LINE REMOVED: ax.plot(xs, mdl.predict(xs), "-", color="black", linewidth=2.0, zorder=2)
 
         print("\nPanel B station-level HRRR elevation fit:")
         print(f"slope = {mdl.coef_[0]:.8f}")
@@ -539,41 +545,39 @@ sm_b.set_array([])
 cbar_b = fig.colorbar(sm_b, ax=axes[1], fraction=0.046, pad=0.03)
 cbar_b.set_label("Latitude (°)", fontweight="bold")
 
-legend_handles = [
-    Line2D([0], [0], marker="D", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="California"),
-    Line2D([0], [0], marker="s", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="Missouri"),
-    Line2D([0], [0], marker="P", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="Utah"),
-    Line2D([0], [0], marker="^", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="Australia"),
-    Line2D([0], [0], marker="v", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="Chile"),
-    Line2D([0], [0], marker="o", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="Alaska"),
-    Line2D([0], [0], marker="X", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="Italy"),
-    Line2D([0], [0], marker="h", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="Japan1"),
-    Line2D([0], [0], marker="*", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=10, label="Japan2"),
-    Line2D([0], [0], marker="o", linestyle="None", markerfacecolor="lightgray",
-           markeredgecolor="black", markersize=8, label="ERA5 filled symbols"),
-    Line2D([0], [0], marker="o", linestyle="None", markerfacecolor="none",
-           markeredgecolor="black", markeredgewidth=2, markersize=8, label="HRRR open symbols"),
-    Line2D([0], [0], color="black", linestyle="--", linewidth=2,
-           label="Station-level latitude fit / ERA5 elevation fit"),
-    Line2D([0], [0], color="black", linestyle="-", linewidth=2,
-           label="HRRR station-level elevation fit"),
+
+# Station-group markers.
+site_labels = [('Alaska', 'o'), ('Australia', '^'), ('California', 'D'), ('Chile', 'v'), ('Germany', '<'), ('Guadeloupe', '>'), ('Italy', 'X'), ('Japan-1', 'h'), ('Japan-2', '*'), ('Missouri', 's'), ('Utah', 'P')]
+
+site_handles = [
+    Line2D([0], [0], marker=marker, linestyle="None",
+           markerfacecolor="lightgray", markeredgecolor="black",
+           markersize=8, label=label)
+    for label, marker in site_labels
 ]
 
+# Filled/open symbol convention; no fitted-line legend entries.
+style_handles = [
+    Line2D([0], [0], marker="s", linestyle="None",
+           markerfacecolor="black", markeredgecolor="black",
+           markersize=8, label="ERA5 (filled symbols)"),
+    Line2D([0], [0], marker="s", linestyle="None",
+           markerfacecolor="none", markeredgecolor="black",
+           markeredgewidth=1.8, markersize=8,
+           label="HRRR (open symbols)"),
+]
+
+legend_sites = fig.legend(
+    handles=site_handles, loc="upper center",
+    bbox_to_anchor=(0.5, 0.995), ncol=6,
+    frameon=True, fontsize=9, title="Station group"
+)
+fig.add_artist(legend_sites)
+
 fig.legend(
-    handles=legend_handles,
-    loc="upper center",
-    ncol=4,
-    frameon=True,
-    bbox_to_anchor=(0.5, 0.985),
+    handles=style_handles, loc="upper center",
+    bbox_to_anchor=(0.5, 0.925), ncol=2,
+    frameon=True, fontsize=9
 )
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])

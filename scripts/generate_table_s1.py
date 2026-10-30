@@ -213,7 +213,29 @@ def process_file(path):
 
 
 def main():
-    files = sorted(DATA_DIR.glob("*.csv"))
+    approved_files = [
+        "ERA5_Alaska.csv",
+        "ERA5_Australia.csv",
+        "ERA5_California.csv",
+        "ERA5_Chile.csv",
+        "ERA5_Germany.csv",
+        "ERA5_Guadeloupe.csv",
+        "ERA5_Italy.csv",
+        "ERA5_Japan1.csv",
+        "ERA5_Japan2.csv",
+        "ERA5_Missouri.csv",
+        "HRRR_California.csv",
+        "HRRR_Missouri.csv",
+        "HRRR_Utah.csv",
+    ]
+
+    files = [DATA_DIR / name for name in approved_files]
+
+    missing = [str(p) for p in files if not p.is_file()]
+    if missing:
+        raise FileNotFoundError(
+            "Required input datasets missing: " + ", ".join(missing)
+        )
 
     print("DATA DIRECTORY:", DATA_DIR)
     print("CSV files found:", len(files))

@@ -125,17 +125,53 @@ def gaussian_mu0(x, a, sigma):
 
 
 def try_parse_datetime(date_series, time_series=None):
+    """Parse YYYYMMDD and DD/MM/YY dates with optional times."""
+
+    dates = date_series.astype(str).str.strip()
+
     if time_series is not None:
-        combo = date_series.astype(str).str.strip() + " " + time_series.astype(str).str.strip()
+        times = time_series.astype(str).str.strip()
+        combo = dates + " " + times
+        formats = [
+            "%Y%m%d %H:%M:%S",
+            "%d/%m/%y %H:%M:%S",
+        ]
     else:
-        combo = date_series.astype(str).str.strip()
+        combo = dates
+        formats = [
+            "%Y%m%d",
+            "%d/%m/%y",
+            "%Y-%m-%d",
+            "%Y-%m-%d %H:%M:%S",
+        ]
 
-    dt = pd.to_datetime(combo, errors="coerce")
+    result = pd.Series(
+        pd.NaT,
+        index=date_series.index,
+        dtype="datetime64[ns]"
+    )
 
-    if dt.isna().all():
-        dt = pd.to_datetime(combo, errors="coerce", format="mixed")
+    for fmt in formats:
+        missing = result.isna()
+        if not missing.any():
+            break
 
-    return dt
+        parsed = pd.to_datetime(
+            combo.loc[missing],
+            format=fmt,
+            errors="coerce"
+        )
+
+        result.loc[missing] = parsed
+
+    if result.isna().any():
+        examples = combo.loc[result.isna()].head(5).tolist()
+        raise ValueError(
+            f"Unparsed timestamps: {result.isna().sum()}; "
+            f"examples: {examples}"
+        )
+
+    return result
 
 
 def combine_datetime_columns(df, date_col, time_col):
@@ -524,224 +560,12 @@ if plot_df.empty:
 plot_df["Lat_plot"] = plot_df.apply(get_lat_plot_x, axis=1)
 plot_df["Elev_plot"] = plot_df.apply(get_elev_plot_x, axis=1)
 
-
 # ============================================================
-# BUILD FIGURE
-# ============================================================
-fig, axes = plt.subplots(2, 1, figsize=(10, 12))
-
-# Panel A
-ax = axes[0]
-
-ax.text(
-    0.02,
-    0.98,
-    "(a)",
-    transform=ax.transAxes,
-    ha="left",
-    va="top",
-    fontsize=14,
-    fontweight="bold"
-)
-
-norm_a = Normalize(vmin=plot_df["Elevation"].min(), vmax=plot_df["Elevation"].max())
-cmap_a = plt.colormaps["viridis"]
-
-for _, row in plot_df.iterrows():
-    plot_point(
-        ax=ax,
-        row=row,
-        xval=row["Lat_plot"],
-        yval=row["Mean_sigma_sp"],
-        color_val=row["Elevation"],
-        cmap=cmap_a,
-        norm=norm_a
-    )
-
-x_lat = plot_df["Latitude"].to_numpy(float)
-y_sig = plot_df["Mean_sigma_sp"].to_numpy(float)
-
-a_fit, sigma_fit = fit_gaussian_mu0(x_lat, y_sig)
-
-if a_fit is not None:
-    xs = np.linspace(np.nanmin(x_lat) - 5, np.nanmax(x_lat) + 5, 1000)
-    ys = gaussian_mu0(xs, a_fit, sigma_fit)
-    ax.plot(xs, ys, "--", color="black", linewidth=2.0, zorder=2)
-
-ax.set_xlabel("Latitude (°)", fontweight="bold")
-ax.set_ylabel(r"$\sigma^{sp}$ (m)", fontweight="bold")
-ax.grid(True, linestyle="--", alpha=0.35)
-ax.set_xlim(*nice_limits(plot_df["Lat_plot"]))
-ax.set_ylim(*nice_limits(y_sig))
-
-sm_a = plt.cm.ScalarMappable(cmap=cmap_a, norm=norm_a)
-sm_a.set_array([])
-cbar_a = fig.colorbar(sm_a, ax=ax, fraction=0.046, pad=0.03)
-cbar_a.set_label("Elevation (m)", fontweight="bold")
-
-# Panel B
-ax = axes[1]
-
-ax.text(
-    0.02,
-    0.98,
-    "(b)",
-    transform=ax.transAxes,
-    ha="left",
-    va="top",
-    fontsize=14,
-    fontweight="bold"
-)
-
-norm_b = Normalize(vmin=plot_df["Latitude"].min(), vmax=plot_df["Latitude"].max())
-cmap_b = plt.colormaps["plasma"]
-
-for _, row in plot_df.iterrows():
-    plot_point(
-        ax=ax,
-        row=row,
-        xval=row["Elev_plot"],
-        yval=row["Mean_sigma_sp"],
-        color_val=row["Latitude"],
-        cmap=cmap_b,
-        norm=norm_b
-    )
-
-era5_plot = plot_df[
-    plot_df["Dataset"] == "ERA5"
-].dropna(subset=["Elevation", "Mean_sigma_sp"])
-
-hrrr_plot = plot_df[
-    plot_df["Dataset"] == "HRRR"
-].dropna(subset=["Elevation", "Mean_sigma_sp"])
-
-if len(era5_plot) >= 2:
-    X = era5_plot[["Elevation"]].to_numpy(float)
-    y = era5_plot["Mean_sigma_sp"].to_numpy(float)
-
-    mdl = LinearRegression().fit(X, y)
-    xs = np.linspace(X.min(), X.max(), 300).reshape(-1, 1)
-
-    ax.plot(xs, mdl.predict(xs), "--", color="black", linewidth=2.0, zorder=2)
-
-if len(hrrr_plot) >= 2:
-    X = hrrr_plot[["Elevation"]].to_numpy(float)
-    y = hrrr_plot["Mean_sigma_sp"].to_numpy(float)
-
-    mdl = LinearRegression().fit(X, y)
-    xs = np.linspace(X.min(), X.max(), 300).reshape(-1, 1)
-
-    ax.plot(xs, mdl.predict(xs), "-", color="black", linewidth=2.0, zorder=2)
-
-ax.set_xlabel("Elevation (m)", fontweight="bold")
-ax.set_ylabel(r"$\sigma^{sp}$ (m)", fontweight="bold")
-ax.grid(True, linestyle="--", alpha=0.35)
-ax.set_xlim(*nice_limits(plot_df["Elev_plot"]))
-ax.set_ylim(*nice_limits(plot_df["Mean_sigma_sp"]))
-
-sm_b = plt.cm.ScalarMappable(cmap=cmap_b, norm=norm_b)
-sm_b.set_array([])
-cbar_b = fig.colorbar(sm_b, ax=ax, fraction=0.046, pad=0.03)
-cbar_b.set_label("Latitude (°)", fontweight="bold")
-
-
-# ============================================================
-# LEGENDS
+# SPATIAL VARIABILITY RESULTS
+# Latitude and elevation panels removed.
 # ============================================================
 
-# Marker shape identifies geographic station group.
-site_labels = [
-    ("Alaska", "o"),
-    ("Australia", "^"),
-    ("California", "D"),
-    ("Chile", "v"),
-    ("Germany", "<"),
-    ("Guadeloupe", ">"),
-    ("Italy", "X"),
-    ("Japan-1", "h"),
-    ("Japan-2", "*"),
-    ("Missouri", "s"),
-    ("Utah", "P"),
-]
-
-site_handles = [
-    Line2D(
-        [0], [0],
-        marker=marker,
-        linestyle="None",
-        markerfacecolor="lightgray",
-        markeredgecolor="black",
-        markeredgewidth=1.0,
-        markersize=8,
-        label=label
-    )
-    for label, marker in site_labels
-]
-
-# Fill style identifies NWP dataset; line style identifies fitted relationship.
-style_handles = [
-    Line2D(
-        [0], [0],
-        marker="o",
-        linestyle="None",
-        markerfacecolor="lightgray",
-        markeredgecolor="black",
-        markersize=8,
-        label="ERA5 (filled)"
-    ),
-    Line2D(
-        [0], [0],
-        marker="o",
-        linestyle="None",
-        markerfacecolor="none",
-        markeredgecolor="black",
-        markeredgewidth=1.8,
-        markersize=8,
-        label="HRRR (open)"
-    ),
-    Line2D(
-        [0], [0],
-        color="black",
-        linestyle="--",
-        linewidth=2,
-        label="Latitude fit / ERA5 elevation fit"
-    ),
-    Line2D(
-        [0], [0],
-        color="black",
-        linestyle="-",
-        linewidth=2,
-        label="HRRR elevation fit"
-    ),
-]
-
-# First legend: all station-group marker shapes.
-legend_sites = fig.legend(
-    handles=site_handles,
-    loc="upper center",
-    bbox_to_anchor=(0.5, 0.995),
-    ncol=6,
-    frameon=True,
-    fontsize=9,
-    title="Station group",
-    title_fontsize=9
-)
-
-# Keep the first legend when adding the second.
-fig.add_artist(legend_sites)
-
-# Second legend: model fill convention and fitted lines.
-fig.legend(
-    handles=style_handles,
-    loc="upper center",
-    bbox_to_anchor=(0.5, 0.925),
-    ncol=4,
-    frameon=True,
-    fontsize=9
-)
-
-plt.tight_layout(rect=[0, 0, 1, 0.84])
-plt.savefig(OUT_PNG, dpi=DPI, bbox_inches="tight")
-plt.close('all')
-
-print(f"\nSaved figure to:\n{OUT_PNG}")
+print("\nFigure 5 latitude and elevation panels removed.")
+print("Spatial variability results saved to:")
+print(OUT_CSV_ALL_TIMES)
+print(OUT_CSV_SUMMARY)

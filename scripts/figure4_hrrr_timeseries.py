@@ -245,6 +245,12 @@ for ax, (path, tag, axis_type) in zip(axes, PANELS):
             df["Datetime_plot"].max()
         )
 
+        # Extra horizontal spacing for California only
+        if "california" in tag.lower():
+            left, right = ax.get_xlim()
+            extra = (right - left) * 0.03
+            ax.set_xlim(left - extra, right + extra)
+
     leg = ax.legend(
         title="Station",
         fontsize=LEGEND_SIZE,
