@@ -37,7 +37,7 @@ GRID_ALPHA = 0.22
 
 MARKERS = {
     "ROL1": "o", "ROL2": "s", "ROL3": "^", "ROL4": "D",
-    "P665": "o", "P666": "s", "P667": "^", "P668": "D",
+    "P665": "o", "P666": "s", "P668": "D",
     "UTSL": "o", "UTSO": "s", "UTWV": "^", "ZLC1": "D",
 }
 
@@ -71,7 +71,8 @@ def build_datetime(df):
     if date_col is not None and time_col is not None:
         return pd.to_datetime(
             df[date_col].astype(str).str.strip() + " " + df[time_col].astype(str).str.strip(),
-            errors="coerce"
+            format="%Y%m%d %H:%M:%S",
+            errors="raise"
         )
 
     if datetime_col is not None:
@@ -244,6 +245,15 @@ for ax, (path, tag, axis_type) in zip(axes, PANELS):
             df["Datetime_plot"].min(),
             df["Datetime_plot"].max()
         )
+
+
+
+    # California uses compressed numerical date positions.
+    # Add 5% padding without changing observations or dates.
+    if "california" in tag.lower():
+        n_dates = len(unique_dates)
+        padding = max(3, int(n_dates * 0.05))
+        ax.set_xlim(-padding, (n_dates - 1) + padding)
 
     leg = ax.legend(
         title="Station",

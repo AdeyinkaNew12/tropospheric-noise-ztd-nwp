@@ -31,6 +31,8 @@ SUPPLEMENTARY_SCRIPTS = [
     "generate_table_s1.py",
     "generate_table_s6_station_spacing.py",
     "generate_table_s7_station_observations.py",
+    "generate_supplementary_word_tables.py",
+    "format_table_s6.py",
 ]
 
 STATION_CSV = (
