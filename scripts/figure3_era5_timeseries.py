@@ -247,12 +247,22 @@ for i, fname in enumerate(FILES):
     ax.set_ylabel("Residual (ERA-5) (m)", fontweight="bold")
     ax.grid(True, linestyle="--", alpha=0.25)
 
+    # UTAH_PANEL_HORIZONTAL_PADDING
+    # Add 5% horizontal space around the plotted Utah observations.
+    if "utah" in fname.lower():
+        from matplotlib.dates import date2num, num2date
+        x0, x1 = ax.get_xlim()
+        span = x1 - x0
+        if span > 0:
+            pad = span * 0.05
+            ax.set_xlim(x0 - pad, x1 + pad)
+
     if fname == "ERA5_California.csv":
         ax.xaxis.set_major_locator(mdates.YearLocator(base=1))
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
         ax.set_xlim(
-            pd.Timestamp("2019-01-01"),
-            pd.Timestamp("2023-01-01")
+            pd.Timestamp("2018-10-01"),
+            pd.Timestamp("2023-04-01")
         )
         ax.tick_params(axis="x", labelrotation=0)
     elif is_month_style(fname):

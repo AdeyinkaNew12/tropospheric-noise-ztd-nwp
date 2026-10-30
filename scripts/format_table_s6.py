@@ -8,7 +8,10 @@ from docx.oxml.ns import qn
 
 ROOT = Path(__file__).resolve().parents[1]
 
-candidates = sorted((ROOT / "outputs").rglob("Table_S6.docx"))
+candidates = sorted(
+    (ROOT / "manuscript_outputs" / "Supplementary_Tables")
+    .rglob("Table_S6.docx")
+)
 
 if not candidates:
     raise SystemExit("ERROR: Table_S6.docx not found in outputs.")

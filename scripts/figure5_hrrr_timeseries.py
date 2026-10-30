@@ -14,9 +14,9 @@ OUTPUT_DIR = BASE_DIR / "outputs"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 PANELS = [
-    (DATA_DIR / "HRRR_Missouri.csv", "(a) Missouri", "normal"),
-    (DATA_DIR / "HRRR_California.csv", "(b) California", "compressed"),
-    (DATA_DIR / "HRRR_Utah.csv", "(c) Utah", "normal"),
+    (DATA_DIR / "HRRR_Utah.csv", "(a) Salt Lake City, Utah", "normal"),
+    (DATA_DIR / "HRRR_California.csv", "(b) Mineral, California", "compressed"),
+    (DATA_DIR / "HRRR_Missouri.csv", "(c) Rolla, Missouri", "normal"),
 ]
 
 OUTNAME = "Figure5_HRRR_Residual_TimeSeries.png"
