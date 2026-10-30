@@ -14,7 +14,7 @@ from itertools import cycle
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "Supplement_Original_Data"
 
-OUT_DIR = Path.home() / "Desktop" / "NewUpdated"
+OUT_DIR = Path.home() / "Desktop" / "GNSS Final Results" / "Supplementary_Figures_Updated"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 FILES = [
@@ -32,7 +32,7 @@ FILES = [
 
 NROWS, NCOLS = 5, 2
 FIGSIZE = (14, 18)
-DPI = 300
+DPI = 600
 
 OUT_PNG = OUT_DIR / "Residual_Histograms_ALL_SITES_ERA5_NEW_UPDATED.png"
 OUT_PDF = OUT_DIR / "Residual_Histograms_ALL_SITES_ERA5_NEW_UPDATED.pdf"
@@ -328,10 +328,6 @@ fig.savefig(
     bbox_inches="tight"
 )
 
-fig.savefig(
-    OUT_PDF,
-    bbox_inches="tight"
-)
 
 plt.close(fig)
 
@@ -340,7 +336,6 @@ plt.close(fig)
 # ============================================================
 
 assert OUT_PNG.is_file()
-assert OUT_PDF.is_file()
 
 print("\n" + "=" * 75)
 print("ERA5 HISTOGRAM FIGURE GENERATED SUCCESSFULLY")
@@ -351,5 +346,4 @@ print("Station-group entries:", total_stations)
 print("Valid observations:", total_observations)
 
 print("\nPNG:", OUT_PNG)
-print("PDF:", OUT_PDF)
 print("Original data directory:", DATA_DIR)

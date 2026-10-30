@@ -11,7 +11,7 @@ from matplotlib.ticker import FormatStrFormatter
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "Supplement_Original_Data"
 
-OUTPUT_DIR = Path.home() / "Desktop" / "NewUpdated"
+OUTPUT_DIR = Path.home() / "Desktop" / "GNSS Final Results" / "Supplementary_Figures_Updated"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 OUT_PNG = OUTPUT_DIR / "Residual_vs_Height_ALL_SITES_NEW_UPDATED.png"
@@ -40,7 +40,7 @@ FILES = [
 NROWS = 5
 NCOLS = 2
 FIGSIZE = (13.5, 15)
-DPI = 300
+DPI = 600
 
 FONT_FAMILY = "DejaVu Sans"
 AX_LABEL_SIZE = 11
@@ -286,15 +286,10 @@ fig.savefig(
     bbox_inches="tight"
 )
 
-fig.savefig(
-    OUT_PDF,
-    bbox_inches="tight"
-)
 
 plt.close(fig)
 
 assert OUT_PNG.is_file()
-assert OUT_PDF.is_file()
 
 print("\n" + "=" * 80)
 print("FIGURE GENERATED SUCCESSFULLY")
@@ -303,4 +298,3 @@ print("PASS: Panel letters (a)–(j) placed inside plotting boxes.")
 print("PASS: Region names omitted from plots.")
 print("PASS: Station legends remain outside.")
 print("PNG:", OUT_PNG)
-print("PDF:", OUT_PDF)

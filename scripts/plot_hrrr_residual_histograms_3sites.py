@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "Supplement_Original_Data"
 
-OUT_DIR = Path.home() / "Desktop" / "NewUpdated"
+OUT_DIR = Path.home() / "Desktop" / "GNSS Final Results" / "Supplementary_Figures_Updated"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 OUT_PNG = OUT_DIR / "Residual_Histograms_3Sites_HRRR_NEW_UPDATED.png"
@@ -25,15 +25,15 @@ OUT_PDF = OUT_DIR / "Residual_Histograms_3Sites_HRRR_NEW_UPDATED.pdf"
 # ==========================================================
 
 FILES = [
-    ("Missouri", "HRRR_Missouri.csv", 4, 59),
-    ("California", "HRRR_California.csv", 3, 195),
-    ("Utah", "HRRR_Utah.csv", 4, 857),
+    ("Utah", "HRRR_Utah.csv", 4, 833),
+    ("California", "HRRR_California.csv", 3, 536),
+    ("Missouri", "HRRR_Missouri.csv", 4, 61),
 ]
 
 NROWS = 3
 NCOLS = 1
 FIGSIZE = (10.2, 10.2)
-DPI = 300
+DPI = 600
 
 COLORS = [
     "steelblue",
@@ -76,6 +76,7 @@ def load_site(path):
         )
 
     candidates = [
+        "Residual",
         "Residual (GNSS)",
         "Residual(GNSS)",
     ]
@@ -200,11 +201,11 @@ for site, filename, expected_stations, expected_obs in FILES:
     )
 
 assert total_stations == 11
-assert total_observations == 1111
+assert total_observations == 1430
 
 print("\nPASS: 3 corrected HRRR CSV files.")
 print("PASS: 11 station-group entries.")
-print("PASS: 1111 observations.")
+print("PASS: 1430 observations.")
 print("PASS: Correct Missouri ROL3 coordinates.")
 
 # ==========================================================
@@ -312,10 +313,6 @@ fig.savefig(
     bbox_inches="tight"
 )
 
-fig.savefig(
-    OUT_PDF,
-    bbox_inches="tight"
-)
 
 plt.close(fig)
 
@@ -323,13 +320,12 @@ print("\n" + "=" * 85)
 print("FINAL VERIFICATION")
 print("=" * 85)
 
-print("PASS: (a) Missouri")
-print("PASS: (b) California")
-print("PASS: (c) Utah")
+print("PASS: (a) Salt Lake City, Utah")
+print("PASS: (b) Mineral, California")
+print("PASS: (c) Rolla, Missouri")
 print("PASS: Panel letters inside plotting boxes.")
 print("PASS: Individual automatic frequency scales.")
 print("PASS: Corrected original HRRR CSV files.")
 
 print("\nPNG:", OUT_PNG)
-print("PDF:", OUT_PDF)
 print("Source datasets:", DATA_DIR)

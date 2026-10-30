@@ -12,21 +12,21 @@ from matplotlib.ticker import FormatStrFormatter
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "Supplement_Original_Data"
 
-OUT_DIR = Path.home() / "Desktop" / "NewUpdated"
+OUT_DIR = Path.home() / "Desktop" / "GNSS Final Results" / "Supplementary_Figures_Updated"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 OUT_PNG = OUT_DIR / "Residual_vs_Height_3Sites_HRRR_NEW_UPDATED.png"
 OUT_PDF = OUT_DIR / "Residual_vs_Height_3Sites_HRRR_NEW_UPDATED.pdf"
 
 FILES = [
-    ("Missouri", "HRRR_Missouri.csv", 4, 59),
-    ("California", "HRRR_California.csv", 3, 195),
-    ("Utah", "HRRR_Utah.csv", 4, 857),
+    ("Utah", "HRRR_Utah.csv", 4, 833),
+    ("California", "HRRR_California.csv", 3, 536),
+    ("Missouri", "HRRR_Missouri.csv", 4, 61),
 ]
 
 NROWS, NCOLS = 3, 1
 FIGSIZE = (9.2, 10.8)
-DPI = 300
+DPI = 600
 
 FONT_FAMILY = "DejaVu Sans"
 AX_LABEL_SIZE = 12
@@ -63,7 +63,7 @@ def load_hrrr(path):
     if missing:
         raise ValueError(f"{path.name}: Missing columns {missing}")
 
-    candidates = ["Residual (GNSS)", "Residual(GNSS)"]
+    candidates = ["Residual", "Residual (GNSS)", "Residual(GNSS)"]
     available = [c for c in candidates if c in df.columns]
 
     if len(available) != 1:
@@ -145,11 +145,11 @@ for i, (site, filename, expected_stations, expected_obs) in enumerate(FILES):
     )
 
 assert total_stations == 11
-assert total_observations == 1111
+assert total_observations == 1430
 
 print("\nPASS: 3 corrected HRRR datasets.")
 print("PASS: 11 station-group entries.")
-print("PASS: 1111 observations.")
+print("PASS: 1430 observations.")
 print("PASS: Corrected Missouri ROL3 coordinates.")
 
 fig, axes = plt.subplots(NROWS, NCOLS, figsize=FIGSIZE)
@@ -253,21 +253,18 @@ for i, (site, filename, df, residual_col, stations) in enumerate(loaded):
         text.set_fontweight("bold")
 
 fig.savefig(OUT_PNG, dpi=DPI, bbox_inches="tight")
-fig.savefig(OUT_PDF, bbox_inches="tight")
 plt.close(fig)
 
 assert OUT_PNG.is_file()
-assert OUT_PDF.is_file()
 
 print("\n" + "=" * 85)
 print("FINAL VERIFICATION")
 print("=" * 85)
-print("PASS: (a) Missouri")
-print("PASS: (b) California")
-print("PASS: (c) Utah")
+print("PASS: (a) Salt Lake City, Utah")
+print("PASS: (b) Mineral, California")
+print("PASS: (c) Rolla, Missouri")
 print("PASS: Only panel letters inside plotting boxes.")
 print("PASS: Correct original HRRR CSV files.")
-print("PASS: 11 station-group entries and 1111 observations.")
+print("PASS: 11 station-group entries and 1430 observations.")
 print("\nPNG:", OUT_PNG)
-print("PDF:", OUT_PDF)
 print("Source datasets:", DATA_DIR)

@@ -15,3 +15,45 @@ scripts/*before*.py
 /backups/
 *.bak
 *.backup
+# Python caches and environments
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+.env
+# Backups and temporary files
+backups/
+backup/
+*.old
+*.orig
+*.tmp
+*~
+# Original and processed datasets
+data/
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.nc
+*.nc4
+*.h5
+*.hdf5
+# Generated figures
+figures/
+results/
+manuscript_outputs/
+*.png
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+*.svg
+*.pdf
+*.eps
+# Generated documents
+*.docx
+*.doc
+*.pptx
+*.ppt
