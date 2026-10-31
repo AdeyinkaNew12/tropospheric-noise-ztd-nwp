@@ -47,7 +47,7 @@ FIGURE_S8 = SCRIPT_DIR / "supplementary_station_map.py"
 FIGURE_S8_OUTPUT = (
     BASE_DIR
     / "figures"
-    / "FigureS8_Supplementary_Topographic_Map.png"
+    / "Figure S8.png"
 )
 
 def execute(script_name, extra_args=None):

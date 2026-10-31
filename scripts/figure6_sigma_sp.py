@@ -26,17 +26,17 @@ ERA5_FILES = [
     "ERA5_Italy.csv",
     "ERA5_Chile.csv",
     "ERA5_Guadeloupe.csv",
-    "ERA5_Missouri.csv",
+    "ERA5_Rolla.csv",
     "ERA5_California.csv",
 ]
 
 HRRR_FILES = [
-    "HRRR_Missouri.csv",
+    "HRRR_Rolla.csv",
     "HRRR_California.csv",
     "HRRR_Utah.csv",
 ]
 
-OUT_PNG = OUTPUT_DIR / "Figure6_sigma_sp_all_points_OPEN_HRRR_FILLED_ERA5.png"
+OUT_PNG = OUTPUT_DIR / "Figure 6.png"
 OUT_CSV_ALL_TIMES = OUTPUT_DIR / "sigma_sp_all_time_steps.csv"
 OUT_CSV_SUMMARY = OUTPUT_DIR / "sigma_sp_site_summary.csv"
 
@@ -50,12 +50,12 @@ LAT_OFFSET = 0.03
 ELEV_OFFSET = 25.0
 
 era5_to_hrrr_group = {
-    "ERA5_Missouri": "Missouri",
+    "ERA5_Rolla": "Rolla",
     "ERA5_California": "California",
 }
 
 hrrr_file_to_group = {
-    "HRRR_Missouri.csv": "Missouri",
+    "HRRR_Rolla.csv": "Rolla",
     "HRRR_California.csv": "California",
     "HRRR_Utah.csv": "Utah",
 }
@@ -222,7 +222,7 @@ def fit_gaussian_mu0(x, y):
 
 marker_map = {
     "California": "D",
-    "Missouri": "s",
+    "Rolla": "s",
     "Utah": "P",
     "Alaska": "o",
     "Australia": "^",
@@ -252,9 +252,9 @@ def get_lat_plot_x(row):
     if row["Dataset"] == "HRRR" and row["SiteName"] == "California":
         return x + LAT_OFFSET
 
-    if row["Dataset"] == "ERA5" and row["MatchedGroup"] == "Missouri":
+    if row["Dataset"] == "ERA5" and row["MatchedGroup"] == "Rolla":
         return x - LAT_OFFSET
-    if row["Dataset"] == "HRRR" and row["SiteName"] == "Missouri":
+    if row["Dataset"] == "HRRR" and row["SiteName"] == "Rolla":
         return x + LAT_OFFSET
 
     return x
@@ -268,9 +268,9 @@ def get_elev_plot_x(row):
     if row["Dataset"] == "HRRR" and row["SiteName"] == "California":
         return x + ELEV_OFFSET
 
-    if row["Dataset"] == "ERA5" and row["MatchedGroup"] == "Missouri":
+    if row["Dataset"] == "ERA5" and row["MatchedGroup"] == "Rolla":
         return x - ELEV_OFFSET
-    if row["Dataset"] == "HRRR" and row["SiteName"] == "Missouri":
+    if row["Dataset"] == "HRRR" and row["SiteName"] == "Rolla":
         return x + ELEV_OFFSET
 
     return x
@@ -693,7 +693,7 @@ cbar_b.set_label("Latitude (°)", fontweight="bold")
 
 
 # Marker shape identifies station group.
-site_labels = [('Alaska', 'o'), ('Australia', '^'), ('California', 'D'), ('Chile', 'v'), ('Germany', '<'), ('Guadeloupe', '>'), ('Italy', 'X'), ('Japan-1', 'h'), ('Japan-2', '*'), ('Missouri', 's'), ('Utah', 'P')]
+site_labels = [('Alaska', 'o'), ('Australia', '^'), ('California', 'D'), ('Chile', 'v'), ('Germany', '<'), ('Guadeloupe', '>'), ('Italy', 'X'), ('Japan-1', 'h'), ('Japan-2', '*'), ('Rolla', 's'), ('Utah', 'P')]
 
 site_handles = [
     Line2D([0], [0], marker=marker, linestyle="None",
@@ -726,7 +726,7 @@ fig.legend(
     frameon=True, fontsize=9
 )
 
-plt.tight_layout(rect=[0, 0, 1, 0.84])
+plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig(OUT_PNG, dpi=DPI, bbox_inches="tight")
 plt.close('all')
 

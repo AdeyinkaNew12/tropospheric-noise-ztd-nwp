@@ -26,27 +26,27 @@ ERA5_FILES = [
     "ERA5_Italy.csv",
     "ERA5_Chile.csv",
     "ERA5_Guadeloupe.csv",
-    "ERA5_Missouri.csv",
+    "ERA5_Rolla.csv",
     "ERA5_California.csv",
 ]
 
 HRRR_FILES = [
-    "HRRR_Missouri.csv",
+    "HRRR_Rolla.csv",
     "HRRR_California.csv",
     "HRRR_Utah.csv",
 ]
 
-OUT_PNG = OUTPUT_DIR / "Figure7_sigma_t_station_only_OPEN_HRRR_FILLED_ERA5.png"
+OUT_PNG = OUTPUT_DIR / "Figure 7.png"
 ALL_OUT = OUTPUT_DIR / "Figure7_sigma_t_station_only_outputs.csv"
 STATIONS_USED_OUT = OUTPUT_DIR / "Figure7_stations_used.csv"
 
 era5_to_hrrr_group = {
-    "ERA5_Missouri": "Missouri",
+    "ERA5_Rolla": "Rolla",
     "ERA5_California": "California",
 }
 
 region_lookup = {
-    "HRRR_Missouri.csv": "Missouri",
+    "HRRR_Rolla.csv": "Rolla",
     "HRRR_California.csv": "California",
     "HRRR_Utah.csv": "Utah",
 }
@@ -121,7 +121,7 @@ def std_sample(x):
 
 group_marker_map = {
     "California": "D",
-    "Missouri": "s",
+    "Rolla": "s",
     "Utah": "P",
     "Alaska": "o",
     "Australia": "^",
@@ -547,7 +547,7 @@ cbar_b.set_label("Latitude (°)", fontweight="bold")
 
 
 # Station-group markers.
-site_labels = [('Alaska', 'o'), ('Australia', '^'), ('California', 'D'), ('Chile', 'v'), ('Germany', '<'), ('Guadeloupe', '>'), ('Italy', 'X'), ('Japan-1', 'h'), ('Japan-2', '*'), ('Missouri', 's'), ('Utah', 'P')]
+site_labels = [('Alaska', 'o'), ('Australia', '^'), ('California', 'D'), ('Chile', 'v'), ('Germany', '<'), ('Guadeloupe', '>'), ('Italy', 'X'), ('Japan-1', 'h'), ('Japan-2', '*'), ('Rolla', 's'), ('Utah', 'P')]
 
 site_handles = [
     Line2D([0], [0], marker=marker, linestyle="None",

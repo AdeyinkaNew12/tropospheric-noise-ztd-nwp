@@ -8,20 +8,20 @@ DESKTOP = Path.home() / "Desktop" / "GNSS Final Results"
 SOURCES = {
     "Main_Figures": {
         "figures": [
-            "Figure1_GNSS_World_Map.pdf",
-            "Figure2_ERA5_GNSS_1to1.png",
+            "Figure 1.pdf",
+            "Figure 2.png",
         ],
         "outputs": [
-            "Figure3_ERA5_Residual_TimeSeries.png",
-            "Figure4_HRRR_GNSS_1to1.png",
-            "Figure5_HRRR_Residual_TimeSeries.png",
-            "Figure6_sigma_sp_all_points_OPEN_HRRR_FILLED_ERA5.png",
-            "Figure7_sigma_t_station_only_OPEN_HRRR_FILLED_ERA5.png",
+            "Figure 3.png",
+            "Figure 4.png",
+            "Figure 5.png",
+            "Figure 6.png",
+            "Figure 7.png",
         ],
     },
     "Supplementary_Figures": {
         "figures": [
-            "FigureS8_Supplementary_Topographic_Map.png",
+            "Figure S8.png",
         ],
     },
     "Supplementary_Tables": {
@@ -53,6 +53,8 @@ SOURCES = {
         ],
     },
 }
+
+
 
 def main():
     report = []

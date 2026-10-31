@@ -140,7 +140,7 @@ def main():
         TABLES, "Table_S1_GNSS_Stations_FINAL.csv", 52
     )
 
-    s1a = s1[s1["Site"] != "Missouri"]
+    s1a = s1[s1["Site"] != "Rolla"]
 
     rows = [
         [
@@ -155,16 +155,16 @@ def main():
     combined_tables.append(save_table(
         "S1a",
         "Table S1a. GNSS station characteristics for "
-        "non-Missouri study regions.",
+        "non-Rolla study regions.",
         ["Site", "Model", "Station", "Latitude (°)",
          "Longitude (°)", "Elevation (m)", "Observations"],
         rows,
-        "Note. Missouri field stations are presented "
+        "Note. Rolla field stations are presented "
         "separately in Table S1b."
     ))
 
     mo = read_csv(
-        TABLES, "Table_S7_UPDATED_Missouri_observations.csv", 122
+        TABLES, "Table_S7_UPDATED_Rolla_observations.csv", 122
     )
 
     rows = [
@@ -179,7 +179,7 @@ def main():
 
     combined_tables.append(save_table(
         "S1b",
-        "Table S1b. Missouri GNSS field station "
+        "Table S1b. Rolla GNSS field station "
         "characteristics and individual acquisition dates and times.",
         ["Model", "Station", "Latitude (°)", "Longitude (°)",
          "Elevation (m)", "Date", "Time"],
@@ -339,7 +339,7 @@ def main():
          "Elev. (m)", "Start date", "End date",
          "Time", "N"],
         rows,
-        "Note. Missouri's individual acquisition dates "
+        "Note. Rolla's individual acquisition dates "
         "and times are listed in Table S1b."
     ))
 

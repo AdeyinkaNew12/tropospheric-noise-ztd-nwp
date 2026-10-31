@@ -76,7 +76,7 @@ CONFIG = {
         "color": "#e66a00",
         "box": (0.065, 0.57)
     },
-    "Missouri": {
+    "Rolla": {
         "color": "#8736a4",
         "box": (0.325, 0.75)
     },
@@ -110,6 +110,9 @@ CONFIG = {
     },
 }
 
+# Standardize the legacy region label without changing the source CSV.
+df["Region"] = df["Region"].replace({"Missouri": "Rolla"})
+
 if set(df["Region"]) != set(CONFIG):
     raise ValueError(
         f"Unexpected study regions: {set(df['Region']) ^ set(CONFIG)}"
@@ -124,11 +127,11 @@ plt.rcParams.update({
     "savefig.dpi": 600,
 })
 
-fig = plt.figure(figsize=(17, 10), facecolor="white")
+fig = plt.figure(figsize=(17, 7), facecolor="white")
 
 # PlateCarree produces the flat geographic layout of the reference.
 ax = fig.add_axes(
-    [0.025, 0.16, 0.95, 0.78],
+    [0.025, 0.18, 0.95, 0.79],
     projection=ccrs.PlateCarree()
 )
 
@@ -264,7 +267,7 @@ handles.append(
 fig.legend(
     handles=handles,
     loc="lower center",
-    bbox_to_anchor=(0.5, 0.035),
+    bbox_to_anchor=(0.5, 0.055),
     ncol=6,
     frameon=False,
     fontsize=10,
@@ -272,9 +275,9 @@ fig.legend(
     handletextpad=0.5
 )
 
-stem = "Figure1_GNSS_World_Map"
+stem = "Figure 1"
 
-for extension in ["pdf"]:
+for extension in ["pdf", "png"]:
     output = OUT / f"{stem}.{extension}"
 
     fig.savefig(

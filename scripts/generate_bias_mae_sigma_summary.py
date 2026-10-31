@@ -10,9 +10,9 @@ FIGURE6 = Path(__file__).resolve().parents[1] / "outputs" / "Figure7_sigma_t_sta
 
 ERA5_REGIONS = [
     "Australia", "Japan1", "Germany", "Alaska", "Japan2",
-    "Italy", "Chile", "Guadeloupe", "Missouri", "California"
+    "Italy", "Chile", "Guadeloupe", "Rolla", "California"
 ]
-HRRR_REGIONS = ["Missouri", "California", "Utah"]
+HRRR_REGIONS = ["Rolla", "California", "Utah"]
 
 def find_col(df, candidates):
     for name in candidates:
@@ -40,7 +40,7 @@ def calculate_stations(dataset, regions):
 
         if dataset == "ERA5":
             residual_col = find_col(
-                df, ["Residual(ERA5)", "Residual (ERA5)"]
+                df, ["Residual", "Residual(ERA5)", "Residual (ERA5)"]
             )
         else:
             residual_col = find_col(
@@ -86,7 +86,7 @@ def calculate_stations(dataset, regions):
         result[f"{metric}_mm"] = result[f"{metric}_m"] * 1000
 
     result["MatchedGroup"] = result["Name"].where(
-        result["Name"].isin(["Missouri", "California", "Utah"]),
+        result["Name"].isin(["Rolla", "California", "Utah"]),
         "None"
     )
 

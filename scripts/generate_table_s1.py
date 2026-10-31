@@ -31,7 +31,7 @@ REGION_ORDER = [
     "Italy",
     "Japan",
     "Japan2",
-    "Missouri",
+    "Rolla",
     "Utah",
 ]
 
@@ -223,9 +223,9 @@ def main():
         "ERA5_Italy.csv",
         "ERA5_Japan1.csv",
         "ERA5_Japan2.csv",
-        "ERA5_Missouri.csv",
+        "ERA5_Rolla.csv",
         "HRRR_California.csv",
-        "HRRR_Missouri.csv",
+        "HRRR_Rolla.csv",
         "HRRR_Utah.csv",
     ]
 

@@ -5,7 +5,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.lines import Line2D
-from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 
 # =========================
 # SETTINGS
@@ -25,14 +25,14 @@ FILES = [
     "ERA5_Italy.csv",
     "ERA5_Chile.csv",
     "ERA5_Guadeloupe.csv",
-    "ERA5_Missouri.csv",
+    "ERA5_Rolla.csv",
     "ERA5_California.csv",
 ]
 
 NROWS, NCOLS = 5, 2
 FIGSIZE = (8.3, 11.7)
 DPI = 300
-OUTNAME = "Figure2_ERA5_GNSS_1to1.png"
+OUTNAME = "Figure 2.png"
 
 FONT_FAMILY = "DejaVu Sans"
 AX_LABEL_SIZE = 8
@@ -47,7 +47,15 @@ ONE2ONE_LW = 1.0
 GRID_ALPHA = 0.30
 PANEL_LABEL_SIZE = 10
 
-RESID_COL_STRICT = "Residual(ERA5)"
+RESID_COL_CANDIDATES = [
+    "Residual",
+    "Residual(ERA5)",
+    "Residual (ERA5)",
+    "Residual(ERA-5)",
+    "Residual (m)",
+    "Residual_ERA5",
+    "GNSS-ERA5",
+]
 
 
 def _norm(s: str) -> str:
@@ -87,7 +95,7 @@ def load_site_csv(path):
         ],
     )
 
-    c_col = RESID_COL_STRICT
+    c_col = pick_col(df, RESID_COL_CANDIDATES)
 
     y_col = pick_col(
         df,
@@ -110,9 +118,9 @@ def load_site_csv(path):
             f"Found columns: {df.columns.tolist()}"
         )
 
-    if c_col not in df.columns:
+    if c_col is None:
         raise KeyError(
-            f"Missing required residual column '{c_col}' in {path.name}\n"
+            f"Missing residual column in {path.name}\n"
             f"Found columns: {df.columns.tolist()}"
         )
 
@@ -249,6 +257,10 @@ for i, (ax, fname) in enumerate(zip(axes, FILES)):
     for t in ax.get_xticklabels() + ax.get_yticklabels():
         t.set_fontweight("bold")
 
+    ax.xaxis.set_major_locator(MaxNLocator(nbins=5))
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%.2f"))
     ax.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
     ax.grid(True, linestyle="--", alpha=GRID_ALPHA)
 
@@ -258,7 +270,7 @@ for i, (ax, fname) in enumerate(zip(axes, FILES)):
         title="Station",
         fontsize=LEGEND_SIZE,
         title_fontsize=LEGEND_TITLE_SIZE,
-        loc="upper left",
+        loc="lower right" if i == 6 else "upper left",
         frameon=True,
         framealpha=0.95,
     )

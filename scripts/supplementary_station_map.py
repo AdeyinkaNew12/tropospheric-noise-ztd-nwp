@@ -45,7 +45,7 @@ REGIONS = [
     ("Italy", "Italy"),
     ("Japan-1", "Japan"),
     ("Japan-2", "Japan2"),
-    ("Missouri", "Missouri"),
+    ("Rolla", "Rolla"),
     ("Utah", "Utah"),
 ]
 
@@ -94,7 +94,7 @@ def load_stations(path):
         "Italy": "Italy",
         "Japan1": "Japan",
         "Japan2": "Japan2",
-        "Missouri": "Missouri",
+        "Rolla": "Rolla",
         "Utah": "Utah",
     }
 
@@ -178,7 +178,7 @@ def load_stations(path):
     ).reset_index(drop=True)
 
     rol3 = result[
-        (result["Site"] == "Missouri")
+        (result["Site"] == "Rolla")
         & (result["Station"] == "ROL3")
     ]
 
@@ -189,7 +189,7 @@ def load_stations(path):
 
     print("PASS: Corrected original ERA5/HRRR station data.")
     print("PASS: Station coordinates and elevations verified.")
-    print("PASS: Missouri ROL3 elevation = 301.01 m.")
+    print("PASS: Rolla ROL3 elevation = 301.01 m.")
     print(f"PASS: {len(result)} unique regional station entries.")
 
     return result
@@ -524,7 +524,7 @@ def draw_region(
             "F8O2": (18, -10),
             "BUL9": (-42, -12),
         },
-        "Missouri": {
+        "Rolla": {
             "ROL1": (8, 13),
             "ROL2": (8, -13),
         },

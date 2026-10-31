@@ -23,16 +23,16 @@ FILES = [
     "ERA5_Italy.csv",
     "ERA5_Chile.csv",
     "ERA5_Guadeloupe.csv",
-    "ERA5_Missouri.csv",
+    "ERA5_Rolla.csv",
     "ERA5_California.csv",
 ]
 
-MONTH_STYLE_KEYS = ["missouri", "california", "guadeloupe"]
+MONTH_STYLE_KEYS = ["rolla", "california", "guadeloupe"]
 
 NROWS, NCOLS = 5, 2
 FIGSIZE = (16, 18)
 DPI = 300
-OUTNAME = "Figure3_ERA5_Residual_TimeSeries.png"
+OUTNAME = "Figure 3.png"
 
 plt.rcParams.update({
     "font.family": "DejaVu Sans",
@@ -151,13 +151,20 @@ def apply_year_style(ax):
 
 
 def apply_month_style(ax):
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
+    # Choose a small number of readable date labels.
+    import matplotlib.ticker as mticker
+
+    ax.xaxis.set_major_locator(
+        mdates.AutoDateLocator(minticks=3, maxticks=5)
+    )
+    ax.xaxis.set_major_formatter(
+        mdates.DateFormatter("%Y-%m")
+    )
     ax.xaxis.get_offset_text().set_visible(False)
 
     for lab in ax.get_xticklabels():
-        lab.set_rotation(0)
-        lab.set_ha("center")
+        lab.set_rotation(30)
+        lab.set_ha("right")
 
 
 def is_month_style(fname: str) -> bool:
@@ -260,9 +267,19 @@ for i, fname in enumerate(FILES):
     if fname == "ERA5_California.csv":
         ax.xaxis.set_major_locator(mdates.YearLocator(base=1))
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+        # Use actual observation dates with horizontal padding.
+        dt_min = dfc["Datetime"].min()
+        dt_max = dfc["Datetime"].max()
+
+        span = dt_max - dt_min
+        padding = max(
+            pd.Timedelta(days=30),
+            span * 0.06
+        )
+
         ax.set_xlim(
-            pd.Timestamp("2018-10-01"),
-            pd.Timestamp("2023-04-01")
+            dt_min - padding,
+            dt_max + padding
         )
         ax.tick_params(axis="x", labelrotation=0)
     elif is_month_style(fname):

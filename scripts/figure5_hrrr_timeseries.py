@@ -14,12 +14,12 @@ OUTPUT_DIR = BASE_DIR / "outputs"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 PANELS = [
-    (DATA_DIR / "HRRR_Utah.csv", "(a) Salt Lake City, Utah", "normal"),
-    (DATA_DIR / "HRRR_California.csv", "(b) Mineral, California", "compressed"),
-    (DATA_DIR / "HRRR_Missouri.csv", "(c) Rolla, Missouri", "normal"),
+    (DATA_DIR / "HRRR_Utah.csv", "(a)", "normal"),
+    (DATA_DIR / "HRRR_California.csv", "(b)", "compressed"),
+    (DATA_DIR / "HRRR_Rolla.csv", "(c)", "normal"),
 ]
 
-OUTNAME = "Figure5_HRRR_Residual_TimeSeries.png"
+OUTNAME = "Figure 5.png"
 
 FIGSIZE = (11.5, 9.2)
 
@@ -130,7 +130,7 @@ def clean_normal_date_axis(ax, dt_min, dt_max):
     ax.set_xlim(dt_min - pad, dt_max + pad)
 
     if span_days > 180:
-        ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
+        ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
     elif span_days > 60:
         ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
@@ -250,9 +250,9 @@ for ax, (path, tag, axis_type) in zip(axes, PANELS):
 
     # California uses compressed numerical date positions.
     # Add 5% padding without changing observations or dates.
-    if "california" in tag.lower():
+    if path.name == "HRRR_California.csv":
         n_dates = len(unique_dates)
-        padding = max(3, int(n_dates * 0.05))
+        padding = max(5, int(n_dates * 0.08))
         ax.set_xlim(-padding, (n_dates - 1) + padding)
 
     leg = ax.legend(

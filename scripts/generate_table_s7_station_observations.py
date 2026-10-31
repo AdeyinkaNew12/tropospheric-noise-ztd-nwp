@@ -18,9 +18,9 @@ GROUPS = {
     "ERA5": [
         "Alaska", "Australia", "California", "Chile",
         "Germany", "Guadeloupe", "Italy", "Japan1",
-        "Japan2", "Missouri"
+        "Japan2", "Rolla"
     ],
-    "HRRR": ["California", "Missouri", "Utah"]
+    "HRRR": ["California", "Rolla", "Utah"]
 }
 
 def find_col(df, candidates, required=True):
@@ -70,7 +70,7 @@ def clean_time(value):
     return value
 
 station_rows = []
-missouri_rows = []
+rolla_rows = []
 all_data = []
 
 for model, sites in GROUPS.items():
@@ -149,11 +149,11 @@ for model, sites in GROUPS.items():
                 "N_Obs": len(g)
             })
 
-            if site == "Missouri":
+            if site == "Rolla":
                 for _, obs in g.iterrows():
-                    missouri_rows.append({
+                    rolla_rows.append({
                         "Model": model,
-                        "Site": "Missouri",
+                        "Site": "Rolla",
                         "ID": str(station),
                         "Lat": float(g[lat_col].mean()),
                         "Lon": float(g[lon_col].mean()),
@@ -165,13 +165,13 @@ for model, sites in GROUPS.items():
                     })
 
 summary = pd.DataFrame(station_rows)
-missouri = pd.DataFrame(missouri_rows)
+rolla = pd.DataFrame(rolla_rows)
 
 summary = summary.sort_values(
     ["Model", "Site", "ID"]
 ).reset_index(drop=True)
 
-missouri = missouri.sort_values(
+rolla = rolla.sort_values(
     ["Model", "ID", "_sort_date", "Time"]
 ).reset_index(drop=True)
 
@@ -204,11 +204,11 @@ for _, r in s6.iterrows():
 
 # Save CSV outputs.
 summary_csv = OUT / "Table_S7_UPDATED_station_summary.csv"
-missouri_csv = OUT / "Table_S7_UPDATED_Missouri_observations.csv"
+rolla_csv = OUT / "Table_S7_UPDATED_Rolla_observations.csv"
 
 summary.to_csv(summary_csv, index=False)
-missouri.drop(columns=["_sort_date"]).to_csv(
-    missouri_csv, index=False
+rolla.drop(columns=["_sort_date"]).to_csv(
+    rolla_csv, index=False
 )
 
 # Build the editable Word document.
@@ -268,7 +268,7 @@ headers = [
 
 table1 = make_table(headers)
 
-regular = summary[summary["Site"] != "Missouri"]
+regular = summary[summary["Site"] != "Rolla"]
 
 for _, r in regular.iterrows():
     add_row(table1, [
@@ -286,7 +286,7 @@ for _, r in regular.iterrows():
 
 format_table(table1)
 
-# SECTION 2: Missouri individual observation timestamps.
+# SECTION 2: Rolla individual observation timestamps.
 doc.add_page_break()
 
 title2 = doc.add_paragraph()
@@ -302,7 +302,7 @@ headers2 = [
 
 table2 = make_table(headers2)
 
-for (model, station), g in missouri.groupby(
+for (model, station), g in rolla.groupby(
     ["Model", "ID"], sort=True
 ):
     first = True
@@ -311,7 +311,7 @@ for (model, station), g in missouri.groupby(
         if first:
             values = [
                 model,
-                "Missouri",
+                "Rolla",
                 station,
                 f'{r["Lat"]:.3f}',
                 f'{r["Lon"]:.3f}',
@@ -333,7 +333,7 @@ format_table(table2)
 
 doc.add_paragraph(
     "Note. Times are reported as HH:MM:SS. "
-    "For Missouri stations, each observation date "
+    "For Rolla stations, each observation date "
     "and its corresponding observation time are "
     "reported individually. ERA5 and HRRR observations "
     "are presented separately."
@@ -347,20 +347,20 @@ check = Document(word_path)
 
 assert len(check.tables) == 2
 assert len(check.tables[0].rows) == len(regular) + 1
-assert len(check.tables[1].rows) == len(missouri) + 1
+assert len(check.tables[1].rows) == len(rolla) + 1
 
 print("\nTABLE S7 GENERATED AND VERIFIED")
 print("=" * 65)
 print("Total station entries:", len(summary))
-print("Non-Missouri station entries:", len(regular))
-print("Missouri observation rows:", len(missouri))
+print("Non-Rolla station entries:", len(regular))
+print("Rolla observation rows:", len(rolla))
 
 print("\nSTATION COUNTS BY MODEL AND SITE")
 print(counts.to_string())
 
 print("\nMISSOURI OBSERVATION COUNTS")
 print(
-    missouri.groupby(["Model", "ID"])
+    rolla.groupby(["Model", "ID"])
     .size()
     .to_string()
 )
@@ -368,9 +368,9 @@ print(
 print("\nFILES CREATED")
 print("Word:", word_path)
 print("Station summary CSV:", summary_csv)
-print("Missouri observations CSV:", missouri_csv)
+print("Rolla observations CSV:", rolla_csv)
 
 print("\nPASS: Station counts agree with Table S6.")
-print("PASS: Missouri dates and times are on separate rows.")
+print("PASS: Rolla dates and times are on separate rows.")
 print("PASS: Original data were not modified.")
 print("PASS: Nothing was pushed to GitHub.")

@@ -20,9 +20,9 @@ GROUPS = {
     "ERA5": [
         "Alaska", "Australia", "California", "Chile",
         "Germany", "Guadeloupe", "Italy", "Japan1",
-        "Japan2", "Missouri"
+        "Japan2", "Rolla"
     ],
-    "HRRR": ["California", "Missouri", "Utah"]
+    "HRRR": ["California", "Rolla", "Utah"]
 }
 
 geod = Geod(ellps="WGS84")

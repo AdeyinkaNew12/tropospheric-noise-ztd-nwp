@@ -17,10 +17,10 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 FILES = [
     DATA_DIR / "HRRR_Utah.csv",
     DATA_DIR / "HRRR_California.csv",
-    DATA_DIR / "HRRR_Missouri.csv",
+    DATA_DIR / "HRRR_Rolla.csv",
 ]
 
-OUTNAME = "Figure4_HRRR_GNSS_1to1.png"
+OUTNAME = "Figure 4.png"
 
 FIGSIZE = (9.2, 10.2)
 FONT_FAMILY = "DejaVu Sans"
@@ -146,7 +146,7 @@ gs = fig.add_gridspec(
     height_ratios=[1.0, 1.0, 1.0]
 )
 
-panel_labels = ["(a) Salt Lake City, Utah", "(b) Mineral, California", "(c) Rolla, Missouri"]
+panel_labels = ["(a)", "(b)", "(c)"]
 
 for i, path in enumerate(FILES):
     ax = fig.add_subplot(gs[i, 0])
