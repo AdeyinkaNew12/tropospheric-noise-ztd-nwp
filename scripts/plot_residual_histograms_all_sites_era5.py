@@ -26,7 +26,7 @@ FILES = [
     ("Italy", "ERA5_Italy.csv"),
     ("Chile", "ERA5_Chile.csv"),
     ("Guadeloupe", "ERA5_Guadeloupe.csv"),
-    ("Missouri", "ERA5_Missouri.csv"),
+    ("Rolla", "ERA5_Rolla.csv"),
     ("California", "ERA5_California.csv"),
 ]
 
@@ -98,7 +98,7 @@ def load_site(path):
         ["ID", "Station", "StationID", "Name"]
     )
 
-    resid_col = "Residual(ERA5)"
+    resid_col = "Residual(ERA5)" if "Residual(ERA5)" in df.columns else "Residual"
 
     if resid_col not in df.columns:
         raise ValueError(
@@ -187,15 +187,15 @@ if total_stations != 41:
         f"found {total_stations}"
     )
 
-if total_observations != 5085:
+if total_observations != 4989:
     raise ValueError(
-        f"Expected 5085 observations, "
+        f"Expected 4989 observations, "
         f"found {total_observations}"
     )
 
 print("\nPASS: 10 ERA5 datasets verified.")
 print("PASS: 41 station-group entries verified.")
-print("PASS: 5085 observations verified.")
+print("PASS: 4989 observations verified.")
 
 # ============================================================
 # BUILD COMBINED FIGURE

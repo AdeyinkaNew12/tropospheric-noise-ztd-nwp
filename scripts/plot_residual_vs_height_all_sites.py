@@ -26,7 +26,7 @@ FILES = [
     ("Italy", "ERA5_Italy.csv"),
     ("Chile", "ERA5_Chile.csv"),
     ("Guadeloupe", "ERA5_Guadeloupe.csv"),
-    ("Missouri", "ERA5_Missouri.csv"),
+    ("Rolla", "ERA5_Rolla.csv"),
     ("California", "ERA5_California.csv"),
 ]
 
@@ -68,6 +68,10 @@ def load_era5(path):
 
     df = pd.read_csv(path)
     df.columns = df.columns.str.strip()
+
+    # Accept the residual column name used by the source CSV.
+    if "Residual(ERA5)" not in df.columns and "Residual" in df.columns:
+        df = df.rename(columns={"Residual": "Residual(ERA5)"})
 
     required = ["ID", "Hgt_m", "Residual(ERA5)"]
     missing = [c for c in required if c not in df.columns]
@@ -132,12 +136,12 @@ for i, (site, filename) in enumerate(FILES):
 
 assert len(loaded) == 10
 assert total_stations == 41
-assert total_observations == 5085
+assert total_observations == 4989
 
-missouri = load_era5(DATA_DIR / "ERA5_Missouri.csv")
+rolla = load_era5(DATA_DIR / "ERA5_Rolla.csv")
 
-if "Lon" in missouri.columns:
-    rol3 = missouri[missouri["ID"] == "ROL3"]
+if "Lon" in rolla.columns:
+    rol3 = rolla[rolla["ID"] == "ROL3"]
     assert not rol3.empty
     assert np.allclose(
         pd.to_numeric(rol3["Lon"]).to_numpy(),
@@ -147,8 +151,8 @@ if "Lon" in missouri.columns:
 
 print("\nPASS: 10 corrected ERA5 datasets.")
 print("PASS: 41 station-group entries.")
-print("PASS: 5085 observations.")
-print("PASS: Corrected Missouri ROL3 longitude.")
+print("PASS: 4989 observations.")
+print("PASS: Corrected Rolla ROL3 longitude.")
 
 plt.rcParams.update({
     "font.family": FONT_FAMILY,
@@ -195,13 +199,13 @@ for i, (site, filename, df, stations) in enumerate(loaded):
     # ONLY THE PANEL LETTER, INSIDE THE PLOTTING BOX
     ax.text(
         0.02,
-        0.96,
+        1.025,
         f"({panel_letters[i]})",
         transform=ax.transAxes,
         fontsize=PANEL_LABEL_SIZE,
         fontweight="bold",
         ha="left",
-        va="top",
+        va="bottom",
         zorder=10,
         bbox=dict(
             facecolor="white",

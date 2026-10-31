@@ -21,7 +21,7 @@ OUT_PDF = OUT_DIR / "Residual_vs_Height_3Sites_HRRR_NEW_UPDATED.pdf"
 FILES = [
     ("Utah", "HRRR_Utah.csv", 4, 833),
     ("California", "HRRR_California.csv", 3, 536),
-    ("Missouri", "HRRR_Missouri.csv", 4, 61),
+    ("Rolla", "HRRR_Rolla.csv", 4, 61),
 ]
 
 NROWS, NCOLS = 3, 1
@@ -113,9 +113,9 @@ for i, (site, filename, expected_stations, expected_obs) in enumerate(FILES):
         f"found {len(df)}"
     )
 
-    if site == "Missouri":
+    if site == "Rolla":
         rol3 = df[df["ID"] == "ROL3"]
-        assert not rol3.empty, "Missouri ROL3 missing"
+        assert not rol3.empty, "Rolla ROL3 missing"
 
         for col, expected in [
             ("Lat", 37.925919),
@@ -150,7 +150,7 @@ assert total_observations == 1430
 print("\nPASS: 3 corrected HRRR datasets.")
 print("PASS: 11 station-group entries.")
 print("PASS: 1430 observations.")
-print("PASS: Corrected Missouri ROL3 coordinates.")
+print("PASS: Corrected Rolla ROL3 coordinates.")
 
 fig, axes = plt.subplots(NROWS, NCOLS, figsize=FIGSIZE)
 axes = np.asarray(axes).reshape(-1)

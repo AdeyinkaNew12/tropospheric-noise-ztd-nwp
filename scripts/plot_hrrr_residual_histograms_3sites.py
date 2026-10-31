@@ -27,7 +27,7 @@ OUT_PDF = OUT_DIR / "Residual_Histograms_3Sites_HRRR_NEW_UPDATED.pdf"
 FILES = [
     ("Utah", "HRRR_Utah.csv", 4, 833),
     ("California", "HRRR_California.csv", 3, 536),
-    ("Missouri", "HRRR_Missouri.csv", 4, 61),
+    ("Rolla", "HRRR_Rolla.csv", 4, 61),
 ]
 
 NROWS = 3
@@ -155,7 +155,7 @@ for site, filename, expected_stations, expected_obs in FILES:
         f"found {n_observations}."
     )
 
-    if site == "Missouri":
+    if site == "Rolla":
 
         rol3 = df[df["ID"] == "ROL3"]
 
@@ -168,7 +168,7 @@ for site, filename, expected_stations, expected_obs in FILES:
         ]:
 
             assert column in rol3.columns, (
-                f"Missouri missing {column}."
+                f"Rolla missing {column}."
             )
 
             values = pd.to_numeric(
@@ -206,7 +206,7 @@ assert total_observations == 1430
 print("\nPASS: 3 corrected HRRR CSV files.")
 print("PASS: 11 station-group entries.")
 print("PASS: 1430 observations.")
-print("PASS: Correct Missouri ROL3 coordinates.")
+print("PASS: Correct Rolla ROL3 coordinates.")
 
 # ==========================================================
 # GENERATE THREE VERTICAL HISTOGRAM PANELS
